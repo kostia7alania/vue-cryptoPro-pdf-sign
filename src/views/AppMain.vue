@@ -1,13 +1,18 @@
 <template>
   <div class="appMain">
 
-    <vue-support/>
-
-    <div class="main-content">
-          <div id="content-header">
-                <h1>Сервер электронной подписи КриптоПро DSS <span class="text-content-header"><b></b></span></h1>
+         <div id="content-header">
+                <h1>Сервис электронной подписи ИЦГПК 
+                    <span class="text-content-header">
+                        <b>
+                          <!--<vue-support/>-->
+                        </b>
+                    </span>
+                </h1>
             </div>
-
+   
+      <div class="main-content">
+      
 
       <div class="text-center" v-show="loading_text">
         <div>
@@ -452,4 +457,37 @@ $primary-color: #333;
 input {
   @include border-radius(10px);
 }
+
+
+</style>
+<style>
+#content-header {
+    /*position: relative;*/
+    top: -47px;
+    width: 100%;
+    height: 47px;
+    margin-bottom: 1.5em;
+    background-image: -webkit-gradient(linear,left 0%,left 100%,from(#304c73),to(#2b4569));
+    background-image: -webkit-linear-gradient(top,#304c73,0%,#2b4569,100%);
+    background-image: -moz-linear-gradient(top,#304c73 0%,#2b4569 100%);
+    background-image: linear-gradient(to bottom,#304c73 0%,#2b4569 100%);
+    background-repeat: repeat-x;
+    filter: progid:DXImageTransform.Microsoft.gradient(startColorstr='#304c73',endColorstr='#2b4569',GradientType=0);
+    border-bottom: 1px solid #304c73;
+    border-top-right-radius: 4px;
+    border-top-left-radius: 4px;
+}
+
+#content-header h1 {
+    position: relative;
+    left: 20px;
+    margin: 0;
+    color: #fff;
+    font-size: 18px;
+    font-weight: lighter;
+    line-height: 47px;
+    font-family: Helvetica,arial,sans-serif;
+    padding-bottom: 28px;
+}
+
 </style>
