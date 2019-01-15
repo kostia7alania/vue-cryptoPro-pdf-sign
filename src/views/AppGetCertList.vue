@@ -1,39 +1,55 @@
 <template> 
     <div class="cert_list">
 
-
-        <button class="btn-3d-1" v-if="!certList" @click="getCertList">
-          <img src="../img/list-icon.png" alt="list-icon" class="list-icon">
-          Получить список сертификатов</button>
+      <b-button  v-if="certList" variant="light " @click="getCertList"> <img src="../img/update.png" alt="list-icon" class="list-icon"> Обновить</b-button>
+      <button v-if="!certList" 
+                v-intro="step1_update"
+                v-intro-step="1" 
+                v-intro-scroll-to="'tooltip'" 
+                v-intro-position="'bottom-left-aligned'"
+                class="btn-3d-1" 
+                @click="getCertList">
+          <img src="../img/list-icon.png" alt="list-icon" class="list-icon">Получить список сертификатов</button>
 
         <div v-if="certList"> 
             <h2>Выберите сертификат:</h2>  
-            <select  multiple @click="sertSelectHandler">
+            <!--<select  multiple @click="sertSelectHandler()">
                 <option v-for="(crt,ind) in certList" :value="ind" :key="ind">{{crt.name}}</option> 
-            </select>
+            </select>-->
+            <mySelect v-intro="step2" v-intro-step="2" @input="sertSelectHandler" :options="certList_COMP" />
         </div>
 
         <div v-if="selected_sert">
-        <h2>Выбран сертификат: </h2> 
-            <div class="cert-list-rows">
-              <div><b>Название:</b>  {{selected_sert.Name}}</div>
-              <div><b>Издатель:</b>    {{selected_sert.SubjectName}}</div>
-              <div><b>Версия:</b>    {{selected_sert.Version}}</div>
-              <!--<p>Серийный №:    {{selected_sert.SerialNumber}}</p>
+          <h2>Выбран <span style="color:red" v-if="sert_date_check">просроченный</span> сертификат: </h2> 
+          <div v-intro="step3" v-intro-step="3" class="cert-list-rows">
+              <div><b>Имя:</b>  {{selected_sert.Subject.G?selected_sert.Subject.G:'' + " " 
+                                + selected_sert.Subject.SN?selected_sert.Subject.SN:'' 
+                                + selected_sert.Subject.T?" (" + selected_sert.Subject.T + ")":''}}</div>
+              <div><b>Организация:</b>  {{selected_sert.Subject.OU?selected_sert.Subject.OU:''}}</div>
+              <div><b>Адрес:</b>  {{selected_sert.Subject.STREET?selected_sert.Subject.STREET:''}}</div>
+              
+              <!--<div><b>Издатель:</b>    {{selected_sert.SubjectName}}</div> -->
+              <!--<p>Серийный №:    {{selected_sert.SerialNumber}}</p> "CN=ООО «НОВАГ-СЕРВИС», O=ООО «НОВАГ-СЕРВИС», STREET="ул. Комсомольская, д. 40, пом. 12", L=Краснодар, S=23 Краснодарский край, C=RU, ИНН=002315067718, ОГРН=1022302386028, E=NovAG@tax23.ru"
               <div>Отпечаток SHA1:    {{selected_sert.Thumbprint}}</div>-->
               <div><b>Действителен с</b> {{selected_sert.ValidFromDate | dateTimeFilter}} <b>по</b> {{selected_sert.ValidToDate | dateTimeFilter}}</div>
+              <!--
+              <div><b>Версия:</b>    {{selected_sert.Version}}</div>
               <div><b>Приватный ключ:</b>    {{selected_sert.HasPrivateKey?'Есть':'Нету'}}</div>
-              <div><b>Валидный:</b>    {{selected_sert.IsValid?'Да':'Нет'}}</div>
-            </div>
-            <button class="btn-3d-1" :class="{disabled: !IsValid_cert_comp}" @click="upsend_handler">Выбрать положение</button>
+              <div><b>Валидный:</b>    {{selected_sert.IsValid?'Да':'Нет'}}</div>-->
+          </div>
+          <button v-intro="step4" v-intro-step="4" class="btn-3d-1" :class="{disabled: !IsValid_cert_comp}" @click="upsend_handler">Выбрать положение</button>
         </div>
     </div>
 </template>
 
 <script>
+
+import mySelect from "../components/my-select.vue"; 
+
 export default {
+  components: { mySelect },
   props: ['doc_id'],
-  name: 'app',
+  name: 'App-Get-Cert-List',
   data () {
     return { 
       certList: null, 
@@ -47,6 +63,18 @@ export default {
     }
   }, 
   computed:{
+    sert_date_check(){
+      let s = this.selected_sert;
+      if(!s) return false;
+      let f1 = +s.ValidFromDate < +new Date();
+      let f2 = +new Date() < +s.ValidToDate;
+      return !(f1 && f2);
+    },
+      certList_COMP(){
+        return this.certList.map(e=>{
+          return {text:e.name, value: e.id}
+        })
+      },
         IsValid_cert_comp() { 
             let s = this.selected_sert; 
             return typeof s == 'object' && s.IsValid ? s.IsValid:false;//true = валидно
@@ -54,6 +82,7 @@ export default {
   },
   methods: {
     upsend_handler(){
+
       if(this.IsValid_cert_comp)
         this.$emit ('select-position', {cert64: this.cert64, selected_sert: this.selected_sert })
       else  swal("Hello world!", { className: "red-bg", icon: "error", text: 'Сертификат недействительный! Выберите действительный сертификат!'});
@@ -67,39 +96,51 @@ export default {
                     console.log('getCertsList',list,this); 
                     that.certList = list;
                     that.$emit('loading','');
+                    this.goTour();
+                    
                 }, 
                 err => {
                     console.log( this, err ); alert( err );
                     that.$emit('loading','');
-                }) 
+                });
+                
         },
-        sertSelectHandler(e) {
+        sertSelectHandler(e) {  console.log('eee====',e);
           let that = this;
             this.$emit('sel_cert');
             $('.ui-draggable').remove();
-              console.log('e.target.value=>',this.certList[e.target.value].id);
+             // console.log('e.target.value=>',this.certList[e.target.value].id);
             this.$emit('loading','Загрузка...');
-            let sertId = this.certList[e.target.value].id;
-            cryptopro.certificateInfo (sertId)
+       //   throw ('kk');
+            let sertId = e// this.certList[e.target.value].id;
+          cryptopro
+          .certificateInfo (sertId)
               .then ( sert => {
                   console.log('certificateInfo=>',sert)
                   that.selected_sert = sert; 
-                cryptopro.readCertificate(sertId) //this.selected_sert._cert.Export(0)  //getCertBase64 
-                .then ( cert64 => {
-                    cert64 = cert64//.replace(/\n/gim,'').replace(/\r/gim,'').replace(' ','').trim(); //вроде бы не треба более! -> и так и так пашет!;
-                    console.log('cert64=>', cert64);
-                    this.cert64=cert64;
-                    that.$emit('loading','');
-                })
-              // .then( () => that.$emit('podpisat-confirm',1) )//1-preview,0-final
-              .catch ( e => {  that.$emit('loading',''); throw('error'); });
-           }); 
+                cryptopro
+                .readCertificate(sertId) //this.selected_sert._cert.Export(0)  //getCertBase64 
+                  .then ( cert64 => {
+                      cert64 = cert64//.replace(/\n/gim,'').replace(/\r/gim,'').replace(' ','').trim(); //вроде бы не треба более! -> и так и так пашет!;
+                      console.log('cert64=>', cert64);
+                      this.cert64=cert64;
+                      that.$emit('loading','');
+                      
+                      this.goTour(3);
+                      
+
+                  })
+                // .then( () => that.$emit('podpisat-confirm',1) )//1-preview,0-final
+                .catch ( e => {  that.$emit('loading',''); throw('Ошибка->',e); });
+              })
+            .catch ( e => {  that.$emit('loading',''); throw('Ошибка->', e); });
         }
       }
 }
 </script>
 
 <style scoped lang="scss">
+/*select { flex:10;}*/
 
 .cert_list { 
   text-align: center;
@@ -130,138 +171,4 @@ export default {
   width: 20px;
   vertical-align: middle;
 }
-/* ==========================
-
-  3D Button 1
-
-  ========================== */
-
-.btn-3d-1 {
-  position:     relative;
-  background:   orangered;
-  border:       none;
-  color:        white;
-  padding:      15px 24px;
-  font-size:    1.4rem;
-  box-shadow:   -6px 6px 0px hsl(16, 100%, 30%);
-  outline:      none;
-  
-}
-
-.btn-3d-1:hover {
-  background: hsl(16, 100% , 45%);
-  
-}
-
-.btn-3d-1:active {
-  background: hsl(16, 100% , 40%);
-  top:        3px;
-  left:       -3px;
-  box-shadow: -3px 3px 0 hsl(16, 100%, 30%);
-  
-}
-
-.btn-3d-1::before {
-  position: absolute;
-  display:  block;
-  content: "";
-  height:   0;
-  width:    0;
-  
-  border:           solid 6px transparent;
-  border-right:     solid 6px hsl(16, 100%, 30%);
-  border-left-width:0;
-  top:              0;
-  left:             -6px;
-}
-
-.btn-3d-1::after {
-  position: absolute;
-  display:  block;
-  content: "";
-  height:   0;
-  width:    0;
-  
-  border:             solid 6px transparent;
-  border-top:         solid 6px hsl(16, 100%, 30%);
-  border-bottom-width:0;
-  right:              0;
-  bottom:             -6px;
-}
-
-.btn-3d-1:active::before {
-  border:           solid 3px transparent;
-  border-right:     solid 3px hsl(16, 100%, 30%);
-  border-left-width: 0;
-  left:             -3px;
-  
-}
-
-.btn-3d-1:active::after {
-  border:              solid 3px transparent;
-  border-top:          solid 3px hsl(16, 100%, 30%);
-  border-bottom-width: 0px;
-  bottom:              -3px;
-}
-
-/* ==========================
-
-  3D Button 2
-
-  ========================== */
-
-.btn-3d-2 {
-  position: relative;
-  
-/* /*   background:  #ecd300; */
-  background:  -webkit-radial-gradient( hsl(54, 100%, 50%), hsl(54, 100%, 40%) );
-  background:  -o-radial-gradient( hsl(54, 100%, 50%), hsl(54, 100%, 40%) );
-  background:  -moz-radial-gradient( hsl(54, 100%, 50%), hsl(54, 100%, 40%) );
-  background:  radial-gradient( hsl(54, 100%, 50%), hsl(54, 100%, 40%) ); 
-  background:  radial-gradient(#906b6b, #000000);
-  font-size: 1.4rem;
-  text-shadow:0 -1px 0 #c3af07;
-  color: white;
-  border: solid 1px hsl(54, 100%, 20%);
-  border-radius: 100%;
-  height: 120px;
-  width: 120px;
-  z-index:4;
-  
-  outline:none;
-  box-shadow: inset 0 1px 0 hsl(54,100%,50%),
-              0 2px 0 hsl(54,100%,20%),
-              0 3px 0 hsl(54,100%,18%),
-              0 4px 0 hsl(54,100%,16%),
-              0 5px 0 hsl(54,100%,14%),
-              0 6px 0 hsl(54,100%,12%),
-              0 7px 0 hsl(54,100%,10%),
-              0 8px 0 hsl(54,100%,8%),
-              0 9px 0 hsl(54,100%,6%);
-}
-
-.btn-3d-2:hover {
-  background:  -webkit-radial-gradient( hsl(54, 100%, 45%), hsl(54, 100%, 35%) );
-  background:  -o-radial-gradient( hsl(54, 100%, 45%), hsl(54, 100%, 35%)  );
-  background:  -moz-radial-gradient( hsl(54, 100%, 45%), hsl(54, 100%, 35%)  );
-  background:  radial-gradient( hsl(54, 100%, 45%), hsl(54, 100%, 35%) );
-}
-
-.btn-3d-2:active {
-  background:  -webkit-radial-gradient( hsl(54, 100%, 43%), hsl(54, 100%, 33%) );
-  background:  -o-radial-gradient( hsl(54, 100%, 43%), hsl(54, 100%, 33%)  );
-  background:  -moz-radial-gradient( hsl(54, 100%, 43%), hsl(54, 100%, 33%)  );
-  background:  radial-gradient( hsl(54, 100%, 43%), hsl(54, 100%, 33%) );
-  
-  top:  2px;
-  
-    box-shadow: inset 0 1px 0 hsl(54,100%,50%),
-              0 2px 0 hsl(54,100%,20%),
-              0 3px 0 hsl(54,100%,18%),
-              0 4px 0 hsl(54,100%,16%),
-              0 5px 0 hsl(54,100%,14%),
-              0 6px 0 hsl(54,100%,12%),
-              0 7px 0 hsl(54,100%,10%);
-}
- 
 </style>

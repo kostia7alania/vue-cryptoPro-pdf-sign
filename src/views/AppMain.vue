@@ -1,16 +1,13 @@
 <template>
   <div class="appMain">
 
-         <div id="content-header">
-                <h1>Сервис электронной подписи ИЦГПК 
-                    <span class="text-content-header">
-                        <b>
-                          <!--<vue-support/>-->
-                        </b>
-                    </span>
-                </h1>
-            </div>
+    <div id="content-header">
+      <h1>Сервис электронной подписи ИЦГПК </h1>
+      <vue-support />
+    </div>
    
+  
+
       <div class="main-content">
       
 
@@ -66,11 +63,10 @@
             >Открыть подписанный документ</button>
           </div>
         </transition>
-        <p class="text-center" v-if="stat==1 || (stat == 0 && stat !== '') ">
-          Статус:
-          <span :class="{green:stat==1, red:stat!=1}">{{stat==1?'Успех':'Ошибка'}}</span>
-        </p>
-        <p class="text-center"  v-if="msg">Сообщение сервера: {{msg}}</p>
+        <!--<p class="text-center" v-if="stat==1 || (stat == 0 && stat !== '') ">
+              Статус: <span :class="{green:stat==1, red:stat!=1}">{{stat==1?'Успех':'Ошибка'}}</span>
+            </p>
+            <p class="text-center"  v-if="msg">Сообщение сервера: {{msg}}</p>-->
       </div>
     </div>
   </div>
@@ -82,8 +78,6 @@ import axios from "axios";
 import { CryptoPro } from "ruscryptojs";
 import vue_support from "./VueSupport";
 
-window.cryptopro = new CryptoPro();
-cryptopro.init().then(e => console.warn("[Inited] ruscryptojs->", e));
 
 export default {
   components: {
@@ -113,6 +107,12 @@ export default {
     };
   },
   mounted() {
+
+  window.cryptopro = new CryptoPro();
+  cryptopro
+    .init().then(e => console.warn("[Inited] ruscryptojs->", e))
+    .catch(e=>console.log('Ошибка при cryptopro.init()=>',e));
+
     window.axios_instance = axios.create({
       headers: {
         crossDomain: true,
@@ -125,7 +125,8 @@ export default {
   },
   methods: {
     sel_cert_handler(){
-        this.msg='';this.stat='';
+        this.msg='';
+        this.stat='';
     },
     loading_handler(e) {
       console.log("load_handl", e);
@@ -188,7 +189,7 @@ export default {
         })
         .catch(err => { 
             console.log("podpisat catch err=>" + err);
-            this.echo_end_die({ stat: 0, msg: err }); 
+            this.echo_end_die({ stat: 0, msg: err });
         });
     },
     createSign(stamp_prev) {
@@ -202,9 +203,8 @@ export default {
       }
       if (!Thumbprint) { throw "В сертификате отсутствует Thumbprint!"; } //уходит в кетч,откуда была вызвана етот метод (т.е из createSign -> в вызвавший его podpisat().catch)
       console.log("thumbprint=>" + Thumbprint, "HashValue=>" + HashValue);
-      debugger; 
-
- cadesplugin.CreateObjectAsync("CAdESCOM.Store")
+  
+  cadesplugin.CreateObjectAsync("CAdESCOM.Store")
 	.then(oStore=>oStore.Open(cadesplugin.CAPICOM_CURRENT_USER_STORE, cadesplugin.CAPICOM_MY_STORE,cadesplugin.CAPICOM_STORE_OPEN_MAXIMUM_ALLOWED)
 		.then(e2 => {
 			oStore.Certificates
@@ -216,19 +216,24 @@ export default {
 				if(count==0) {alert("Нет сертификатов с таким именем!!!"); throw 'Нет сертификатов с таким именем!';}
 				oCertificates.Item(1)
 					.then(oCertificate=>window.oCertificate=oCertificate)
-              .then( () => step2(HashValue))
-            }) 
-					}) 
-				}
-			)}
-	)
-) 
+              .then( () => step2(HashValue) ).catch(e=>console.log('5'))
+            }).catch(e=>console.log('44444'))
+					}).catch(e=>console.log('33333'))
+				}).catch(e=>console.log('222'))
+      }).catch(e=>console.log('11111111111'))
+  )
+  .catch(e=>{
+    console.log('ОШИБКА ПРИ STEP2 =>',e);
+    this.loading_text = "ОШИБКА ПРИ STEP1";
+    
+  })
 
 function step2 (HashValue){
   var backend_HashValue_Base64 = HashValue //"Bm74AuKzIhVMtdYtUuJEGn1PBz/JbcNZAnAB1tl/KBE=" //перекодпировать в бинарный 16х!
   let sHashValue = base64toHEX(backend_HashValue_Base64);
   //sHashValue = backend_HashValue_Base64;// врубили -> CADESCOM_BASE64_TO_BINARY!!!
-  cadesplugin.CreateObjectAsync("CAdESCOM.HashedData")
+  cadesplugin
+    .CreateObjectAsync("CAdESCOM.HashedData")
       .then(oHashedData=>{
           oHashedData.propset_Algorithm(cadesplugin.CADESCOM_HASH_ALGORITHM_CP_GOST_3411)
   //		.then( () => oHashedData.propset_DataEncoding(cadesplugin.CADESCOM_BASE64_TO_BINARY))
@@ -236,16 +241,20 @@ function step2 (HashValue){
               .then(
                   () => cadesplugin.CreateObjectAsync("CAdESCOM.RawSignature")
                   .then( oRawSignature => oRawSignature.SignHash(oHashedData, oCertificate)
-                  .then(e=>{
-                      cryptoVue.$children[0]._data.createdSign = e;
-                      console.log(e);
-                      that.podpisat2(stamp_prev);
-                  } ))
+                    .then(e=>{ console.log(e);
+                        cryptoVue.$children[0]._data.createdSign = e;
+                        that.podpisat2(stamp_prev);
+                    } )
+                    .catch(e=>that.echo_end_die({ stat: 3, msg: 'Отменено пользователем (1)' }))
+                ).catch(e=>that.echo_end_die({ stat: 3, msg: 'Отменено пользователем (2)'}))
 
-              )
-          )
-      }
-  )
+              ).catch(e=>console.log('bb 22'))
+          ).catch(e=>console.log('bb 11111111111'))
+      })
+      .catch(e=>{
+        console.log('ОШИБКА ПРИ STEP2 =>',e);
+        this.loading_text = "ОШИБКА ПРИ STEP2";
+      })
 }
     },
 
@@ -331,6 +340,8 @@ function step2 (HashValue){
 
     echo_end_die({ stat, msg }) {
         if(!stat) swal("Ошибка!!", { className: "red-bg", icon: "error", text: msg });
+
+        if(stat==3) swal("Ошибка!!", { className: "red-bg", icon: "error", text: msg });
         this.stat = stat;
         this.msg = msg;
         this.loading_text = "";
@@ -351,6 +362,9 @@ function base64toHEX(base64) { var raw = atob(base64); var HEX = ''; for (let i 
 
 
 <style lang="scss">
+@import url(../styles/btn.scss);
+@import url(../styles/global.scss);
+
 .swal-overlay {
   background-color: rgba(64, 95, 88, 0.45); /*rgba(43, 165, 137, 0.45);*/
 }
@@ -416,9 +430,7 @@ img.watermark {
 }
 </style>
 
-
-
-
+ 
 <style lang="scss" scoped>
 .pechat {
   /*display: flex;
@@ -431,10 +443,7 @@ img.watermark {
 }
 .appMain{
     display: flex; 
-    flex-direction: column;
-    .vueSupport{
-        flex:auto ;
-    }
+    flex-direction: column; 
     .main-content {
         flex:9 1 100%;
         display: flex;
@@ -462,6 +471,8 @@ input {
 </style>
 <style>
 #content-header {
+  display: flex;
+  justify-content: space-between;
     /*position: relative;*/
     top: -47px;
     width: 100%;

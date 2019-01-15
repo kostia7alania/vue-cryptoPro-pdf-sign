@@ -1,57 +1,68 @@
 <template>
-  <div @click="click_handler" @keydown.esc="keyup_handler" class="vueSupport">
-    <div class="get-help-row" @click="showModal = true">
-      <span>
-        <img src="../img/help-icon.png" alt="help-icon">
-      </span>
+  <div @click="click_handler" @keydown.esc="closeModal" class="vueSupport">
+    <div class="get-help-row" @click="showModal = true"> 
+      <img src="../img/help-icon.png" alt="help-icon"> 
       <span>Помощь</span>
     </div>
+
+    
     <!-- используй компонент modal, чтобы спустить туда пропсы --> 
-    <modal v-if="showModal" @close="showModal = false">  
-      <h3 slot="header">Помощь</h3>
+    <modal v-show="showModal" @close="closeModal">    
+      
+      <div slot="header"> 
+        <div v-if="helpStatus == 'main'"></div>
+        <my-button v-if="helpStatus == 'feedback'" class="back" @click="changeState('main')" text="<" />
+        <div><strong>Помощь</strong></div>
+        <my-button class="close" @click="closeModal" text="x"/>
+      </div>
+ 
+
+
       <div slot="body">
-        <div>
-            <div class="get-help-row" @click="showModal = true">
-                <span>
-                    <img src="../img/help-icon.png" alt="help-icon">
-                </span>
-                <span class="link">Интерактивная помощь</span>
-            </div>
-          
-        </div>     
-        <div>
-            <h4>Оценить работу приложения</h4>
-            <star-rating @rating-selected="rating = $event" :rating="rating"/>
-            <br>Ваш отзыв:
-            <p>
-            <textarea v-model="feedback_text"></textarea>
-            </p>
-        </div>
+ 
+        <div v-if="helpStatus == 'main'"> 
+
+            <div class="get-help-row" @click="goTour"> 
+              <img src="../img/help-icon.png" alt="help-icon"> 
+              <span class="link">Интерактивная помощь</span>
+            </div>            
+            
+            <div class="get-help-row" @click="changeState('feedback')"> 
+              <img src="../img/feedback.png" alt="help-icon"> 
+              <span class="link"  v-b-tooltip title="Отправить отчет об ошибке">Обратная связь</span>
+            </div> 
+
+        </div>   
+        <FeedBack :helpStatus="helpStatus" v-if="helpStatus == 'feedback'"/> 
       </div> 
-      <template slot="footer"> 
-        <button class="btn-3d-1" @click="showModal = false">Отправить</button>
-      </template>
+      
+     <!--<template slot="footer"> <!--<button class="btn-3d-1" @click="showModal = false">Закрыть</button>-- >  </template>-->
     </modal>
+
   </div>
 </template>
 
 <script>
+
 let modal = {
   template: `  <transition name="modal">
-    <div class="modal-mask">
-      <div class="modal-wrapper">
-        <div class="modal-container">
+    <div class="my-modal-mask">
+      <div class="my-modal-wrapper">
+        <div class="my-modal-container">
 
-          <div class="modal-header">
+          <div class="my-modal-header">
             <slot name="header"> default header </slot>
           </div>
 
-          <div class="modal-body">
+          <div class="my-modal-body">
             <slot name="body"> default body </slot>
+            
           </div>
 
           <div class="modal-footer">
-            <slot name="footer"> <!--default footer--> <button class="modal-default-button" @click="$emit('close')"> OK </button>
+            <slot name="footer"> 
+             ИЦГПК © {{new Date().getFullYear()}}
+             <!-- <button class="modal-default-button" @click="$emit('close')"> OK </button>-->
             </slot>
           </div>
         </div>
@@ -60,14 +71,17 @@ let modal = {
   </transition>`
 };
 
-import axios from "axios";
-import StarRating from "vue-star-rating";
+import myButton from '../components/my-button.vue';
+
+import FeedBack from "./FeedBack.vue";
 export default {
-  components: { StarRating, modal },
+  name: 'vue-support',
+  components: { modal, FeedBack, myButton },
   props: [],
   data() {
     return {
-      rating: 0,
+      attachUserData:true, 
+      rating: null,
       showModal: false,
       feedback_text:null
     };
@@ -81,68 +95,76 @@ export default {
       this.$el.focus() // фокус переводим на окно, при монтировании
     }
 },
- destroyed() {
+ destroyed () {
 // отписываемся
     if (typeof document !== 'undefined') {
       document.body.removeEventListener('keydown', this.handleTabKey)
     }
-},
+},   
   methods: {
-    handleTabKey(e) {
-        console.log('handleTabKey(e)=>>>',e)
+    goTour() {
+      this.$store.commit('changeData', { prop: 'tour', state: true } );
+      this.$intro().start();
+      this.showModal = false;
+    },
+    closeModal(){
+      this.showModal = false;
+      this.changeState('main');
+    },
+    changeState(state){
+      this.$store.commit('changeData', { prop: 'helpStatus', state: state } );
+    }, 
+    handleTabKey(e) { console.log('handleTabKey(e)=>>>',e);
        if (e.keyCode === 9 && this.modals.length) {
          e.preventDefault() // если есть окна, глушим Tab/Shift-Tab
        } // пока полностью отключаю Tab. Надо подумать, как лучше его глушить только вне активного окна. 
     },
-      keyup_handler(e){
-          this.showModal = false;
-      },
-      click_handler(e){
-          console.log(e);
-          window.e = e;
-          if(e.path[0].classList.value == 'modal-wrapper') {
-              console.log('клик во враппер модального!');
-              this.showModal = false;
+      click_handler(e){ 
+          if(e.path[0].classList.value == 'my-modal-wrapper') { console.log('клик во враппер модального!');
+              this.closeModal();
           }
-          
-      },
-    ratingSelected(e) {
-      console.log("rating-selected>>>>", e);
-    }
+      }
   }
 };
-</script>
-<style   lang="scss">
+</script> 
 
-textarea {
-    width: 100%;
-    max-width: 300px;
+<style scoped lang="scss">
+
+.header {
+  font-weight: 888;
+  font-size:15px;
 }
+</style>
 
+<style lang="scss"> 
 
-.link {
-    color:green;  
+.back {
+  font-size:30px;
 }
+ 
+
+.vueSupport{ display: flex; }
+
 .get-help-row {
   display: flex;
   flex-direction: column;
   transition: .4s; 
   align-items: center;
-  cursor:pointer;
-
-
+  cursor: pointer; 
   padding: 7px 19px;
-  border-radius: 2px;
-  background-color: white;
+  /*border-radius: 2px;*/
   text-shadow: 0px -1px 0px rgba(0, 0, 0, 0.3);
-
+  color: white;
   &:hover {
     background-color: #264b6c30;
     transform: scale(1.1);
+  } 
+  img {
+    width: 21px;
   }
 }
 
-.modal-mask {
+.my-modal-mask {
   position: fixed;
   z-index: 9998;
   top: 0;
@@ -154,20 +176,19 @@ textarea {
   transition: opacity 0.3s ease;
 }
 
-.modal-wrapper {
+.my-modal-wrapper {
   display: table-cell;
   vertical-align: middle;
 }
 
-.modal-container { 
-
+.my-modal-container {  
     display: flex;
     flex-direction: column;
     align-items: center;
   
   width: 300px;
   margin: 0px auto;
-  padding: 20px 20px;
+  padding: 20px 20px 0px 20px;
   background-color: #fff;
   border-radius: 2px;
   box-shadow: 0 2px 8px rgba(0, 0, 0, 0.33);
@@ -175,17 +196,22 @@ textarea {
   font-family: Helvetica, Arial, sans-serif;
 }
 
-.modal-header {
+.my-modal-header {
         border-bottom: 1px solid #2f9d6b;
         width: 100%;
         text-align: center;
-    h3 {
-        margin: 0;
-        color: #42b983;
+        padding-bottom:10px;
+        margin-bottom:10px;
+    &>div {
+      margin: 0;
+      color: #42b983;
+      display: flex; 
+      justify-content: space-between;
+      align-items: center;
     }
 }
 
-.modal-body {
+.my-modal-body {
   margin: 10px 0;
 }
 
@@ -212,8 +238,8 @@ textarea {
   opacity: 0;
 }
 
-.modal-enter .modal-container,
-.modal-leave-active .modal-container {
+.modal-enter .my-modal-container,
+.modal-leave-active .my-modal-container {
   -webkit-transform: scale(1.1);
   transform: scale(1.1);
 }
