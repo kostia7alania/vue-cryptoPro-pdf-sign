@@ -27,7 +27,7 @@ import myCheckbox from "./components/my-checkbox.vue"; Vue.component('myCheckbox
 window.cryptoVue =  new Vue({
     el: '#app',
     store,
-    render: h => h(App, { props: { 'doc_id': 123, backend_url: 'https://ssd.emarinet.ru/backend/api_dss.php'/*action=sign&stage=1&stampGen=1'*/ } })
+    render: h => h(App, { props: { 'doc_id': 123, backend_url: './backend/api_dss.php'/*action=sign&stage=1&stampGen=1'*/ } })
   })
 
 Vue.config.devtools = true
