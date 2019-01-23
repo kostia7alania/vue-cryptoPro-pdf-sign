@@ -3,7 +3,7 @@
 <!-- :on-change="selectHandler" -->
   <v-select
     class="my-select"
-    v-model="localVal" 
+    v-model="localVal"
     :searchable="true"
     :options="options"
     label="text"
@@ -30,6 +30,7 @@ export default {
   name: "my-select",
   data() {
     return {
+      inited: 0,
       localVal: 0,
       options2: [
         {
@@ -50,13 +51,17 @@ export default {
     };
   },
   mounted() {
-  //  this.$nextTick(()=>this.localVal = null);
+    this.inited = 1;
+    this.localVal = this.value;
+    //this.$nextTick(()=>this.localVal = null);
   },
   computed: {},
   watch: {
     localVal(e){
       console.log('localVal=>',arguments)
-      this.$emit("input", e?e.value:e)
+      if(this.inited != 1) {
+        this.$emit("input", e )
+      }else this.inited = 3;//чеб не эмитили изменения при инициализации
     }
   },
   methods: {
