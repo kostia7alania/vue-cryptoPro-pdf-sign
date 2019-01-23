@@ -247,12 +247,11 @@ function step2 (HashValue){
                     //debugger;
                     cadesplugin.CreateObjectAsync("CAdESCOM.RawSignature")
                   .then( oRawSignature => oRawSignature.SignHash(oHashedData, oCertificate)
-                    .then(e=>{ console.log(e);
+                    .then(e=>{ console.log('last then=>'+e);
                         cryptoVue.$children[0]._data.createdSign = e;
                         that.podpisat2(stamp_prev);
-                    } )
-                    .catch(e=>that.echo_end_die({ stat: 3, msg: 'Отменено пользователем (1)' }))
-                ).catch(e=>that.echo_end_die({ stat: 3, msg: 'Отменено пользователем (2)'}))
+                    }).catch(e=>that.echo_end_die({ stat: 3, msg: 'Отменено пользователем (1)'+e}))
+                ).catch(e=>that.echo_end_die({ stat: 3, msg: 'Отменено пользователем (2) '+e}))
 
         }).catch(e=>that.echo_end_die({ stat: 3, msg: e.message }))
       }).catch(e=>console.log('bb 11111111111',e))
@@ -265,6 +264,7 @@ function step2 (HashValue){
     },
 
     podpisat2(stamp_prev) {
+     
       let data = {
         HashValue: this.HashValue,
         pechat_pos: this.pechat_pos,

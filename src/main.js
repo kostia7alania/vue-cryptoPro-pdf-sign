@@ -23,11 +23,16 @@ import {computeds_store} from './store/global_mixins.js'; Vue.mixin(computeds_st
 
 import myButton from "./components/my-button.vue"; Vue.component('myButton', myButton);//можно юзать как <my-button/> так и <myButton/>
 import myCheckbox from "./components/my-checkbox.vue"; Vue.component('myCheckbox', myCheckbox);
+Vue.config.devtools = true
 
-window.cryptoVue =  new Vue({
+window.init_Vue = backend_url => {
+  window.cryptoVue = new Vue({
     el: '#app',
     store,
-    render: h => h(App, { props: { 'doc_id': 123, backend_url: './backend/api_dss.php'/*action=sign&stage=1&stampGen=1'*/ } })
+    render: h => h(App, { props: { 'doc_id': 123, backend_url: backend_url /*'./backend/api_dss.php'*/  /*action=sign&stage=1&stampGen=1'*/ } })
   })
+}
+//init_Vue ('./backend_url.php');//4init app!
 
-Vue.config.devtools = true
+
+ 
