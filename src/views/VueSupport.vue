@@ -22,18 +22,26 @@
  
         <div v-if="helpStatus == 'main'"> 
 
+
+
             <div class="get-help-row" @click="goTour"> 
               <img src="../img/help-icon.png" alt="help-icon"> 
-              <span class="link">Интерактивная помощь</span>
+              <span class="link">Помощь с интерфейсом</span>
             </div>            
             
             <div class="get-help-row" @click="changeState('feedback')"> 
               <img src="../img/feedback.png" alt="help-icon"> 
               <span class="link"  v-b-tooltip title="Отправить отчет об ошибке">Обратная связь</span>
-            </div> 
+            </div>
+            <div class="check"> 
+              <my-checkbox :checked="saveState" @click="saveStateChange" text="Запоминать состояние"/> 
+            </div>
 
-        </div>   
-        <FeedBack :helpStatus="helpStatus" v-if="helpStatus == 'feedback'"/> 
+
+        </div> 
+        <FeedBack :helpStatus="helpStatus" v-if="helpStatus == 'feedback'"/>
+
+
       </div> 
       
      <!--<template slot="footer"> <!--<button class="btn-3d-1" @click="showModal = false">Закрыть</button>-- >  </template>-->
@@ -80,11 +88,13 @@ export default {
   props: [],
   data() {
     return {
-      attachUserData:true, 
       rating: null,
       showModal: false,
       feedback_text:null
     };
+  },
+  watch:{
+    
   },
   mounted() {
 // подписываемся на событие keydown
@@ -100,11 +110,24 @@ export default {
     if (typeof document !== 'undefined') {
       document.body.removeEventListener('keydown', this.handleTabKey)
     }
-},   
+}, 
   methods: {
+    saveStateChange(val){ 
+      if(!val || val == 'false'){ localStorage.clear(); }   //в момент убирания птички - удаляются все записи из локалСторага;
+      this.saveToStoreAndLocalStorage('saveState', val);//пишем в локалстораг и в стор VUEx
+    },
     goTour() {
       this.$store.commit('changeData', { prop: 'tour', state: true } );
-      this.$intro().start();
+      introJs.start();
+      //
+      //this.$intro().start();
+      /*
+        document.querySelector('.introjs-skipbutton').innerText = 'Пропустить';
+        document.querySelector('.introjs-prevbutton').innerText = '← Назад';
+        document.querySelector('.introjs-nextbutton').innerText = 'Далее →';
+        document.querySelector('.introjs-donebutton').innerText = 'Закрыть';
+      */
+
       this.showModal = false;
     },
     closeModal(){
@@ -129,7 +152,7 @@ export default {
 </script> 
 
 <style scoped lang="scss">
-
+.check { padding-top:10px; }
 .header {
   font-weight: 888;
   font-size:15px;

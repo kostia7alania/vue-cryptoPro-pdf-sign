@@ -2,7 +2,7 @@
   <div class="appMain">
 
     <div id="content-header">
-      <h1>Сервис электронной подписи ИЦГПК </h1>
+      <h1 class="my-logo">Сервис электронной подписи ИЦГПК </h1>
       <vue-support />
     </div>
    
@@ -107,9 +107,10 @@ export default {
     };
   },
   mounted() {
+    this.saveToStoreAndLocalStorage('saveState'); //без второго аргумента - значит,что берем из локалсторага значение
 
-  window.cryptopro = new CryptoPro();
-  cryptopro
+    window.cryptopro = new CryptoPro();
+    cryptopro
     .init().then(e => console.warn("[Inited] ruscryptojs->", e))
     .catch(e=>console.log('Ошибка при cryptopro.init()=>',e));
 
@@ -489,7 +490,7 @@ input {
     border-top-left-radius: 4px;
 }
 
-#content-header h1 {
+.my-logo {
     position: relative;
     left: 20px;
     margin: 0;
@@ -500,5 +501,16 @@ input {
     font-family: Helvetica,arial,sans-serif;
     padding-bottom: 28px;
 }
+
+
+@media (max-width: 455px) {
+  .my-logo {
+    font-size: 11px;
+  }
+}
+html {
+  min-width: 300px;
+}
+
 
 </style>

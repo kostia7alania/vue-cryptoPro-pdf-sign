@@ -1,18 +1,43 @@
 export let computeds_store = {
   methods: {
+    getArrayLocalStorage(name){
+      if (localStorage.getItem(name)) {
+        try { this[name] = JSON.parse(localStorage.getItem(name)); } catch(e) { localStorage.removeItem(name); }
+      }
+    },
+    saveArrayToLocalStorage(name, val){
+      const ls = JSON.stringify(val);
+      localStorage.setItem(name, ls);//пишем в любом случае в локал стораг!
+    },
+
+
+    saveToStoreAndLocalStorage(name, val){
+      if( typeof val == 'undefined' ) val = localStorage[name]; //если не пришло значение, то ищем в локалстораге
+      else localStorage.setItem(name, val);//если пришло значение, то пишем в локалстораг 
+      this.$store.commit('changeData', { prop: name, state: val } ); //и сгружаем все в стор vueEX
+    },
+    
+    getParamLocalStorage(e){
+      let local = localStorage[e];
+      if (local) this[e] = local 
+    },
+    saveParamToLocalStorage(name,val){
+      localStorage.setItem(name, val);
+    },
     goTour(e){ 
-        this.$nextTick( () => { if(this.tour) {
-          if( e == 3 ) {
-           // this.$intro('.cert-list-rows');
-            introJs().goToStep(3).start();
-          }
-          else{this.$intro().start();}
+        this.$nextTick( () => { 
+          if(this.tour) {
+            introJs.start();  //this.$intro.start();
+            if( e == 3 )  introJs.goToStep(3).start();// this.$intro('.cert-list-rows'); 
         }
       }); //если включен режим тура,то врубаем тур
     }
   },
   
   computed: {
+    saveState() {
+      return this.$store.state.saveState
+    },
     helpStatus() {
       return this.$store.getters.helpStatus
     },
@@ -20,19 +45,22 @@ export let computeds_store = {
       return this.$store.getters.tour
     },
   },
-  beforeMount() {
+  created() {
     
-    introJs().setOption("doneLabel", "Закрыть");
-    introJs().setOption("skipLabel", "Пропустить");
-    introJs().setOption("prevLabel", " << ");
-    introJs().setOption("nextLabel", " > ");
+    introJs.setOption("doneLabel", "Закрыть");
+    introJs.setOption("skipLabel", "Пропустить");
+    introJs.setOption("prevLabel", "&larr; Назад");
+    introJs.setOption("nextLabel", "Далее &rarr;");
+  //  introJs._options.nextLabel = 'sex'
+
   },
   mounted() {
-    this.$intro()._options.doneLabel = 'Закрыть'
+
+  /*  this.$intro()._options.doneLabel = 'Закрыть'
     this.$intro()._options.skipLabel = 'Пропустить'
     this.$intro()._options.prevLabel = '&larr; Назад'
     this.$intro()._options.nextLabel = 'Далее &rarr;'
-
+*/
     
     window.t = this;
     if (this.tour) {
@@ -46,7 +74,7 @@ export let computeds_store = {
     Затем нажмите "Получить список сертификатов"`,
     step1_update: `Данная кнопка обновит список сертификатов`,
       step2: `
-Выберите сертификат
+Здесь можно выбрать сертификат, которым хотите подписать документ
 `,
       step3: `
 Убедитесь, что Вы выбрали правильный сертификат

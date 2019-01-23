@@ -4,7 +4,7 @@ const getters = {
     return JSON.stringify(s.copyObj) != JSON.stringify(s.newJson) ///1-если есть изменения
   },*/ 
   helpStatus: s => s.helpStatus,
-  tour: s => s.tour
+  tour: s =>0// s.tour
 }
 
 

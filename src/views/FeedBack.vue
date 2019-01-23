@@ -1,6 +1,6 @@
 <template>
   <div>
-    <p class="header">Оценить работу приложения</p>
+    <p class="comp-header">Оценить работу приложения</p>
     <h5>Ваша оценка:</h5>
     <star-rating @rating-selected="ratingSelected" :rating="rating"/>
     <h5>Ваш комментарий:</h5>
@@ -18,11 +18,9 @@
 <script>
 import { mapMutations } from 'vuex'; 
 import StarRating from "vue-star-rating";
-import myButton from "../components/my-button.vue";
-import myCheckbox from "../components/my-checkbox.vue";
 export default {
   name: "FeedBack",
-  components: { StarRating, myButton, myCheckbox },
+  components: { StarRating },
   data() {
     return {
       attachUserData: true,
@@ -34,8 +32,11 @@ export default {
   computed: { },
   methods: { 
     sendFeedBack() {
-      this.$store.commit('sendFeedBack', { action: 'send', data: this._data } );
       console.log("sendFeedBack");
+      this.$store.dispatch("sendFeedBack", {
+        action: 'send',
+        data: this._data
+      });
     }, 
     ratingSelected(e) {
       this.rating = e;
@@ -44,8 +45,15 @@ export default {
 };
 </script>
 
-
+ 
+<style scoped lang="scss">
+  .comp-header {
+    font-weight: 888;
+    font-size: 15px;
+  }
+</style> 
 <style lang="scss">
+
 .custom-control-input:checked ~ .custom-control-label::before {
     color: #fff;
     border-color: #3e7e61;
@@ -64,16 +72,7 @@ export default {
     transform: scale(1.1);
   }
 }
-</style>
 
-<style scoped lang="scss">
-.header {
-  font-weight: 888;
-  font-size: 15px;
-}
-</style>
-
-<style lang="scss">
 
 textarea {
     margin: 0px;
