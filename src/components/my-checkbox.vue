@@ -2,7 +2,7 @@
 <template>
 <label class="check-container">
   <span class="check-text">{{text}}</span>
-  <input :value="checked" @click="clickHandler" type="checkbox">
+  <input ref="refCheckbox" :value="checked" @click="clickHandler" type="checkbox">
   <span class="checkmark"></span>
 </label>
 </template>
@@ -19,13 +19,20 @@ export default {
   }, // text,value
   name: "my-button",
   data() {
-    return { 
-    };
+    return {};
   },
-  mounted() {},  //  this.$nextTick(()=>this.localVal = null);
+  mounted() {
+    this.$nextTick(
+      () => {
+        let c = this.checked;
+        if(c == false || c == 'false') c = false;
+        this.$refs.refCheckbox.checked = c;
+    }); // выставляем начальное значение чекбоксу
+
+    //this.$forceUpdate();
+  },  //  this.$nextTick(()=>this.localVal = null);
   computed: {},
-  watch: { 
-  },
+  watch: {},
   methods: {
     clickHandler(e) {
        this.$emit('click', e.target.checked)
