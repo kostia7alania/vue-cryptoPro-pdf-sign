@@ -238,9 +238,14 @@ function step2 (HashValue){
       .then(oHashedData=>{
           oHashedData.propset_Algorithm(cadesplugin.CADESCOM_HASH_ALGORITHM_CP_GOST_3411)
   //		.then( () => oHashedData.propset_DataEncoding(cadesplugin.CADESCOM_BASE64_TO_BINARY))
-      .then( () => oHashedData.SetHashValue(sHashValue) // данные кодируются при задании или получении значения свойства 
+      .then( 
+        () => {
+          //debugger;
+          oHashedData.SetHashValue(sHashValue) // данные кодируются при задании или получении значения свойства 
               .then(
-                  () => cadesplugin.CreateObjectAsync("CAdESCOM.RawSignature")
+                  () =>{
+                    //debugger;
+                    cadesplugin.CreateObjectAsync("CAdESCOM.RawSignature")
                   .then( oRawSignature => oRawSignature.SignHash(oHashedData, oCertificate)
                     .then(e=>{ console.log(e);
                         cryptoVue.$children[0]._data.createdSign = e;
@@ -249,8 +254,8 @@ function step2 (HashValue){
                     .catch(e=>that.echo_end_die({ stat: 3, msg: 'Отменено пользователем (1)' }))
                 ).catch(e=>that.echo_end_die({ stat: 3, msg: 'Отменено пользователем (2)'}))
 
-              ).catch(e=>console.log('bb 22'))
-          ).catch(e=>console.log('bb 11111111111'))
+        }).catch(e=>that.echo_end_die({ stat: 3, msg: e.message }))
+      }).catch(e=>console.log('bb 11111111111',e))
       })
       .catch(e=>{
         console.log('ОШИБКА ПРИ STEP2 =>',e);
