@@ -25,11 +25,11 @@ import myButton from "./components/my-button.vue"; Vue.component('myButton', myB
 import myCheckbox from "./components/my-checkbox.vue"; Vue.component('myCheckbox', myCheckbox);
 Vue.config.devtools = true
 
-window.init_Vue = backend_url => {
+window.init_Vue = (doc_id='',backend_url='',img_url='../') => {
   window.cryptoVue = new Vue({
     el: '#app',
     store,
-    render: h => h(App, { props: { 'doc_id': 123, backend_url: backend_url /*'./backend/api_dss.php'*/  /*action=sign&stage=1&stampGen=1'*/ } })
+    render: h => h(App, { props: { doc_id: doc_id, backend_url: backend_url, img_url: img_url /*'./backend/api_dss.php'*/  /*action=sign&stage=1&stampGen=1'*/ } })
   })
 }
 //init_Vue ('./backend_url.php');//4init app!
