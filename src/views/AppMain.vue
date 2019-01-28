@@ -190,7 +190,7 @@ export default {
         })
         .catch(err => { 
             console.log("podpisat catch err=>" + err);
-            this.echo_end_die({ stat: 0, msg: err });
+            this.echo_end_die({ stat: 0, msg: 'Сетевая ошибка!' });
         });
     },
     createSign(stamp_prev) {
@@ -345,6 +345,7 @@ function step2 (HashValue){
     },
 
     echo_end_die({ stat, msg }) {
+      console.log('msg',msg)
         if(!stat) swal("Ошибка!!", { className: "red-bg", icon: "error", text: msg });
 
         if(stat==3) swal("Ошибка!!", { className: "red-bg", icon: "error", text: msg });
