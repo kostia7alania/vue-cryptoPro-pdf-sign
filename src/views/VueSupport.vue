@@ -1,7 +1,7 @@
 <template>
   <div @click="click_handler" @keydown.esc="closeModal" class="vueSupport">
     <div class="get-help-row" @click="showModal = true"> 
-      <img src="../img/help-icon.png" alt="help-icon"> 
+      <img :src="img_url+'help-icon.png'" alt="help-icon"> 
       <span>Помощь</span>
     </div>
 
@@ -11,9 +11,9 @@
       
       <div slot="header"> 
         <div v-if="helpStatus == 'main'"></div>
-        <my-button v-if="helpStatus == 'feedback'" class="back" @click="changeState('main')" text="<" />
+        <my-button :img_url="img_url" v-if="helpStatus == 'feedback'" class="back" @click="changeState('main')" text="<" />
         <div><strong>Помощь</strong></div>
-        <my-button class="close" @click="closeModal" text="x"/>
+        <my-button :img_url="img_url" class="close" @click="closeModal" text="x"/>
       </div>
  
 
@@ -25,12 +25,12 @@
 
 
             <div class="get-help-row" @click="goTour"> 
-              <img src="../img/help-icon.png" alt="help-icon"> 
+              <img :src="img_url+'help-icon.png'" alt="help-icon"> 
               <span class="link">Помощь с интерфейсом</span>
             </div>            
             
             <div class="get-help-row" @click="changeState('feedback')"> 
-              <img src="../img/feedback.png" alt="help-icon"> 
+              <img :src="img_url+'feedback.png'" alt="help-icon"> 
               <span class="link"  v-b-tooltip title="Отправить отчет об ошибке">Обратная связь</span>
             </div>
             <div class="check"> 
@@ -39,7 +39,7 @@
 
 
         </div> 
-        <FeedBack :helpStatus="helpStatus" v-if="helpStatus == 'feedback'"/>
+        <FeedBack :img_url="img_url" :helpStatus="helpStatus" v-if="helpStatus == 'feedback'"/>
 
 
       </div> 
@@ -85,7 +85,7 @@ import FeedBack from "./FeedBack.vue";
 export default {
   name: 'vue-support',
   components: { modal, FeedBack, myButton },
-  props: [],
+  props: ['img_url'],
   data() {
     return {
       rating: null,

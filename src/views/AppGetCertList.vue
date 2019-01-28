@@ -1,7 +1,7 @@
 <template> 
     <div class="cert_list">
 
-      <b-button  v-if="certList" variant="light " @click="getCertList"> <img src="../img/update.png" alt="list-icon" class="list-icon">
+      <b-button  v-if="certList" variant="light " @click="getCertList"> <img :src="img_url+'update.png'" alt="list-icon" class="list-icon">
       Обновить список</b-button>
       <button v-if="!certList" 
                 v-intro="step1_update"
@@ -11,7 +11,7 @@
                 v-intro-position="'bottom-left-aligned'"
                 class="btn-3d-1" 
                 @click="getCertList">
-          <img src="../img/list-icon.png" alt="list-icon" class="list-icon">Получить список сертификатов</button>
+          <img :src="img_url+'list-icon.png'" alt="list-icon" class="list-icon">Получить список сертификатов</button>
 
         <div v-if="certList"> 
             <h2>Выберите сертификат:</h2>  
@@ -50,7 +50,7 @@
               -->
               <div style="color:red" v-if="sert_date_check">Сертификат просрочен</div>
           </div>
-          <button data-step='4'v-intro="step4" v-intro-step="4" class="btn-3d-1" :class="{disabled: !IsValid_cert_comp}" @click="upsend_handler">Выбрать положение</button>
+          <button data-step='4' v-intro="step4" v-intro-step="4" class="btn-3d-1" :class="{disabled: !IsValid_cert_comp}" @click="upsend_handler">Выбрать положение</button>
         </div>
     </div>
 </template>
@@ -60,8 +60,8 @@
 import mySelect from "../components/my-select.vue"; 
 
 export default {
+  props: ['img_url'],
   components: { mySelect },
-  props: ['doc_id'],
   name: 'App-Get-Cert-List',
   data () {
     return { 
@@ -88,6 +88,9 @@ export default {
         this.getParamLocalStorage('cert64');
       }
     }
+    
+    document.querySelector('.cert-list-rows').style.backgroundImage = `url(${this.img_url}cert.png)`;
+
   },
   filters:{
     dateTimeFilter (str) {
@@ -222,11 +225,8 @@ export default {
     flex-direction: column;
 
   .cert-list-rows {
-    h2{
-      text-align: center;
-      width: 100%;
-    }
-    background-image: url(../img/cert.png);
+    h2{ text-align: center; width: 100%; }
+   /* background-image: url(../img/cert.png);*//*<=ПЕРЕНЕС В MOUNTED (в продакшене чеб мог менять урл картинок!)*/
     border:5px double #5a9251; 
     padding: 10px;
     margin: 15px 0px 22px 0px;

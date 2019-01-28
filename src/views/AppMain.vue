@@ -3,17 +3,17 @@
 
     <div id="content-header">
       <h1 class="my-logo">Сервис электронной подписи ИЦГПК </h1>
-      <vue-support />
+      <vue-support  :img_url="img_url"/>
+
     </div>
    
   
 
       <div class="main-content">
-      
-
+       
       <div class="text-center" v-show="loading_text">
         <div>
-          <img src="../img/animaatjes-rubiks-cube.gif">
+          <img :src="img_url+'animaatjes-rubiks-cube.gif'">
         </div>
         <div>{{loading_text}}</div>
       </div>
@@ -21,6 +21,7 @@
       <div v-show="!loading_text">
         <div class="text-center">
           <app-get-cert-list
+            :img_url="img_url"
             v-show="!doc_prev && !base64Binary"
             @sel_cert="sel_cert_handler"
             @select-position="selectPosition"
@@ -55,12 +56,7 @@
             <iframe :src="base64Binary" width="790px" height="1290px" frameborder="0"></iframe>
             <br>
             <br>
-            <button
-              @click="openBase64"
-              class="btn-3d-1"
-              width="auto"
-              target="_blank"
-            >Открыть подписанный документ</button>
+            <button @click="openBase64" class="btn-3d-1" width="auto" target="_blank" >Открыть подписанный документ</button>
           </div>
         </transition>
         <!--<p class="text-center" v-if="stat==1 || (stat == 0 && stat !== '') ">
@@ -85,7 +81,7 @@ export default {
     "vue-support": vue_support
   },
   name:"app-main",
-  props: ["doc_id", "backend_url"],
+  props: ["doc_id", "backend_url", "img_url"],
   data() {
     return {
       loading_text: "",
@@ -169,7 +165,8 @@ export default {
       let post_data = {
         cert_base64: this.cert64,
         pechat_pos: this.pechat_pos,
-        selected_sert: this.selected_sert
+        selected_sert: this.selected_sert,
+        doc_id: this.doc_id
       };
       let url = `${
         this.backend_url
@@ -189,8 +186,8 @@ export default {
           this.createSign(stamp_prev);
         })
         .catch(err => { 
-            console.log("podpisat catch err=>" + err);
-            this.echo_end_die({ stat: 0, msg: err });
+            console.log("podpisat catch err=>" + err); 
+            this.echo_end_die({ stat: 0, msg: 'Сетевая ошибка!' });
         });
     },
     createSign(stamp_prev) {
@@ -250,8 +247,8 @@ function step2 (HashValue){
                     .then(e=>{ console.log('last then=>'+e);
                         cryptoVue.$children[0]._data.createdSign = e;
                         that.podpisat2(stamp_prev);
-                    }).catch(e=>that.echo_end_die({ stat: 3, msg: 'Отменено пользователем (1)'+e}))
-                ).catch(e=>that.echo_end_die({ stat: 3, msg: 'Отменено пользователем (2) '+e}))
+                    }).catch(e=>that.echo_end_die({ stat: 3, msg: 'Отменено пользователем (1)',err:e}))
+                ).catch(e=>that.echo_end_die({ stat: 3, msg: 'Отменено пользователем (2) ',err:e}))
 
         }).catch(e=>that.echo_end_die({ stat: 3, msg: e.message }))
       }).catch(e=>console.log('bb 11111111111',e))
@@ -345,6 +342,7 @@ function step2 (HashValue){
     },
 
     echo_end_die({ stat, msg }) {
+        console.warn('echo_end_die=>',arguments);
         if(!stat) swal("Ошибка!!", { className: "red-bg", icon: "error", text: msg });
 
         if(stat==3) swal("Ошибка!!", { className: "red-bg", icon: "error", text: msg });

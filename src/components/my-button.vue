@@ -2,8 +2,8 @@
 <template>
   <div @click="clickHandler" class="button" :class="cls">
     <p>{{text}} 
-      <img v-if="status=='loading'" src="../img/spinner.gif"/> 
-      <img v-if="status=='feedback'" src="../img/send.png"/> 
+      <img v-if="status=='loading'" :src="img_url+'spinner.gif'"/> 
+      <img v-if="status=='feedback'" :src="img_url+'send.png'"/> 
     </p>
   </div>
 </template>
@@ -16,6 +16,7 @@ export default {
     cls: null,
     text: {default: ()=>"Нажми на меня"},
     status:{default: () => false},
+    img_url: null
   }, // text,value
   name: "my-button",
   data() {
