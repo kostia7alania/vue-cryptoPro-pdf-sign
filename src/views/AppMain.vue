@@ -6,14 +6,14 @@
       <vue-support  :img_url="img_url"/>
 
     </div>
-   
-  
+
+
 
       <div class="main-content">
-       
+
       <div class="text-center" v-show="loading_text">
         <div>
-          <img :src="img_url+'animaatjes-rubiks-cube.gif'">
+          <img src="../img/animaatjes-rubiks-cube.gif">
         </div>
         <div>{{loading_text}}</div>
       </div>
@@ -185,8 +185,8 @@ export default {
           this.loading_text = "загрузка .... 1/3";
           this.createSign(stamp_prev);
         })
-        .catch(err => { 
-            console.log("podpisat catch err=>" + err); 
+        .catch(err => {
+            console.log("podpisat catch err=>" + err);
             this.echo_end_die({ stat: 0, msg: 'Сетевая ошибка!' });
         });
     },
@@ -201,7 +201,7 @@ export default {
       }
       if (!Thumbprint) { throw "В сертификате отсутствует Thumbprint!"; } //уходит в кетч,откуда была вызвана етот метод (т.е из createSign -> в вызвавший его podpisat().catch)
       console.log("thumbprint=>" + Thumbprint, "HashValue=>" + HashValue);
-  
+
   cadesplugin.CreateObjectAsync("CAdESCOM.Store")
 	.then(oStore=>oStore.Open(cadesplugin.CAPICOM_CURRENT_USER_STORE, cadesplugin.CAPICOM_MY_STORE,cadesplugin.CAPICOM_STORE_OPEN_MAXIMUM_ALLOWED)
 		.then(e2 => {
@@ -223,7 +223,7 @@ export default {
   .catch(e=>{
     console.log('ОШИБКА ПРИ STEP2 =>',e);
     this.loading_text = "ОШИБКА ПРИ STEP1";
-    
+
   })
 
 function step2 (HashValue){
@@ -235,10 +235,10 @@ function step2 (HashValue){
       .then(oHashedData=>{
           oHashedData.propset_Algorithm(cadesplugin.CADESCOM_HASH_ALGORITHM_CP_GOST_3411)
   //		.then( () => oHashedData.propset_DataEncoding(cadesplugin.CADESCOM_BASE64_TO_BINARY))
-      .then( 
+      .then(
         () => {
           //debugger;
-          oHashedData.SetHashValue(sHashValue) // данные кодируются при задании или получении значения свойства 
+          oHashedData.SetHashValue(sHashValue) // данные кодируются при задании или получении значения свойства
               .then(
                   () =>{
                     //debugger;
@@ -261,7 +261,7 @@ function step2 (HashValue){
     },
 
     podpisat2(stamp_prev) {
-     
+
       let data = {
         HashValue: this.HashValue,
         pechat_pos: this.pechat_pos,
@@ -311,7 +311,7 @@ function step2 (HashValue){
                 this.echo_end_die({
                     stat: 0,
                     msg: "Ошибка при разборе штампа предпросмотра!"
-                }); 
+                });
             }
           } else {
             this.base64Binary = d.base64Binary;
@@ -434,7 +434,7 @@ img.watermark {
 }
 </style>
 
- 
+
 <style lang="scss" scoped>
 .pechat {
   /*display: flex;
@@ -446,8 +446,8 @@ img.watermark {
   }
 }
 .appMain{
-    display: flex; 
-    flex-direction: column; 
+    display: flex;
+    flex-direction: column;
     .main-content {
         flex:9 1 100%;
         display: flex;

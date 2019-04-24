@@ -1,9 +1,53 @@
 module.exports = {
+  transpileDependencies: [
+    'object-hash'
+  ],
+  lintOnSave: process.env.NODE_ENV !== "production",
+  devServer: {
+    overlay: {
+      warnings: false,
+      errors: true,
+      proxy: "http://localhost:3000/backend/index.php" //Это скажет серверу разработки проксировать любые неизвестные запросы (запросы, которые не соответствуют статическому файлу) на адрес http://localhost:4000.
+    }
+  },
+  publicPath: process.env.NODE_ENV === 'production' ? './testk/js/vue-cryptoPro-pdf-sign/dist/' : '',
+  assetsDir: "./", //По умолчанию: '' - Каталог (относительно outputDir) для хранения сгенерированных статических ресурсов (js, css, img, fonts).
+  outputDir: "dist",
+  indexPath: "index.html", //умолч -'index.html'-относительно outputDir
+  filenameHashing: false,
+
+  chainWebpack: config => {
+    config.module
+      .rule("vue")
+      .use("vue-loader")
+      .loader("vue-loader")
+      .tap(options => {
+        options["transformAssetUrls"] = {
+          img: "src",
+          image: "xlink:href",
+          "b-img": "src",
+          "b-img-lazy": ["src", "blank-src"],
+          "b-card": "img-src",
+          "b-card-img": "img-src",
+          "b-carousel-slide": "img-src",
+          "b-embed": "src"
+        };
+        return options;
+      });
+  },
+
+};
+
+// https://bootstrap-vue.js.org/docs/reference/images/#vue-cli-3-support
+
+
+/* devServer: {
+    proxy: 'https://srs.marinet.ru/testk/js/vue-cryptoPro-pdf-sign/backend/api_dss.php'//с пушером траблы вызывает;
+  },
   lintOnSave: process.env.NODE_ENV !== 'production',
-  baseUrl: process.env.NODE_ENV === 'production' ? './' : '',
-  runtimeCompiler:true,
+  baseUrl: process.env.NODE_ENV === 'production' ? './testk/js/vue-cryptoPro-pdf-sign/dist/' : '',
+  runtimeCompiler: true,
   filenameHashing: false,
   configureWebpack: {
     devtool: 'source-map'
-  }
-}
+  }*/
