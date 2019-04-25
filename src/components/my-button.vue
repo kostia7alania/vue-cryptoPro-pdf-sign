@@ -1,9 +1,9 @@
 
 <template>
   <div @click="clickHandler" class="button" :class="cls">
-    <p>{{text}} 
-      <img v-if="status=='loading'" :src="img_url+'spinner.gif'"/> 
-      <img v-if="status=='feedback'" :src="img_url+'send.png'"/> 
+    <p>{{text}}
+      <img v-if="status=='loading'" src="../img/spinner.gif"/>
+      <img v-if="status=='feedback'" src="../img/send.png"/>
     </p>
   </div>
 </template>
@@ -11,7 +11,7 @@
 <script>
 import {TweenMax} from "gsap/TweenMax";
 import vSelect from 'vue-select';
-export default { 
+export default {
   props: {
     cls: null,
     text: {default: ()=>"Нажми на меня"},
@@ -24,11 +24,11 @@ export default {
   },
   mounted() {},  //  this.$nextTick(()=>this.localVal = null);
   computed: {},
-  watch: { 
+  watch: {
   },
   methods: {
     clickHandler(e) {
-      let $button = e.target; 
+      let $button = e.target;
       let duration = 0.3,
       delay = 0.08;
       TweenMax.to($button, duration, {scaleY: 1.6, ease: Expo.easeOut});
@@ -40,38 +40,38 @@ export default {
 };
 </script>
 
-<style scoped lang="scss"> 
+<style scoped lang="scss">
 img { height: 15px; }
 
 .button {
-  /*background: #3498db;*/ 
+  /*background: #3498db;*/
   /*padding: 4px 15px;*/
   /*position: absolute;*/
   /*left: 50%;
   top: 50%;*/
   /*transform: translateX(-50%) translateY(-50%);*/
-  border-radius: 5px; 
+  border-radius: 5px;
   p {
     margin:0px;
-    font-family: 'Roboto'; 
+    font-family: 'Roboto';
     text-align: center;
     text-transform: uppercase;
     /*color: #FFF;*/
     user-select: none;
   }
- &:hover { 
+ &:hover {
       cursor: pointer;
       transform: scale(1.5);
  }
   transition: 1s;
 
-  &.btn-send{ 
+  &.btn-send{
 
 
     color:white;
     padding: 10px 0;
     background-color: darken(#42b983, 5%);
-    &:hover { 
+    &:hover {
       background-color: darken(#42b983, 20%);
       transform: scale(1.1);
     }
@@ -85,9 +85,9 @@ img { height: 15px; }
   }
 
   }
- 
 
-  
+
+
   /*тень*/
   /*&:after {
     content: "";
