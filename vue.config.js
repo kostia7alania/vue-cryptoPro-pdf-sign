@@ -1,7 +1,4 @@
 module.exports = {
-  transpileDependencies: [
-    'object-hash'
-  ],
   lintOnSave: process.env.NODE_ENV !== "production",
   devServer: {
     overlay: {
@@ -10,12 +7,12 @@ module.exports = {
       proxy: "http://localhost:3000/backend/index.php" //Это скажет серверу разработки проксировать любые неизвестные запросы (запросы, которые не соответствуют статическому файлу) на адрес http://localhost:4000.
     }
   },
-  publicPath: process.env.NODE_ENV === 'production' ? './testk/js/vue-cryptoPro-pdf-sign/dist/' : '',
+  publicPath: process.env.NODE_ENV === 'production' ?
+  'testk/js/vue-cryptoPro-pdf-sign/dist/':'',
   assetsDir: "./", //По умолчанию: '' - Каталог (относительно outputDir) для хранения сгенерированных статических ресурсов (js, css, img, fonts).
   outputDir: "dist",
   indexPath: "index.html", //умолч -'index.html'-относительно outputDir
   filenameHashing: false,
-
   chainWebpack: config => {
     config.module
       .rule("vue")
@@ -38,14 +35,11 @@ module.exports = {
 
 };
 
+  //'../../testk/js/vue-cryptoPro-pdf-sign/dist/' : '',
 // https://bootstrap-vue.js.org/docs/reference/images/#vue-cli-3-support
 
-
-/* devServer: {
-    proxy: 'https://srs.marinet.ru/testk/js/vue-cryptoPro-pdf-sign/backend/api_dss.php'//с пушером траблы вызывает;
-  },
+/*
   lintOnSave: process.env.NODE_ENV !== 'production',
-  baseUrl: process.env.NODE_ENV === 'production' ? './testk/js/vue-cryptoPro-pdf-sign/dist/' : '',
   runtimeCompiler: true,
   filenameHashing: false,
   configureWebpack: {

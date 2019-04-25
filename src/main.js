@@ -10,7 +10,7 @@ import VueIntro from 'vue-introjs'; Vue.use(VueIntro); /*в глобал цсс 
 //import App from './old_branch/AppMain.vue'
 import './libs/jquery-1.4.2.min.js'
 import './libs/jquery-ui-1.8.6.custom.min.js'
-import './libs/jquery-watermarker-0.3.js'
+import './libs/jquery-watermarker-0.3.js' //пародию начали пилить на ету тему -> https://codepen.io/anon/pen/YMRLdp
 import swal from 'sweetalert'; window.swal = swal;
 import introJs  from '../node_modules/intro.js/minified/intro.min.js';
 window.introJs = introJs();
@@ -25,11 +25,13 @@ import myButton from "./components/my-button.vue"; Vue.component('myButton', myB
 import myCheckbox from "./components/my-checkbox.vue"; Vue.component('myCheckbox', myCheckbox);
 Vue.config.devtools = true
 
-window.init_Vue = (doc_id='',backend_url='',img_url='../') => {
+
+
+window.init_Vue = (id,backend_url='',img_url='../') => {
   window.cryptoVue = new Vue({
     el: '#app',
     store,
-    render: h => h(App, { props: { doc_id: doc_id, backend_url: backend_url, img_url: img_url /*'./backend/api_dss.php'*/  /*action=sign&stage=1&stampGen=1'*/ } })
+    render: h => h(App, { props: { id, backend_url: backend_url, img_url: img_url /*'./backend/api_dss.php'*/  /*action=sign&stage=1&stampGen=1'*/ } })
   })
 }
 //init_Vue ('./backend_url.php');//4init app!

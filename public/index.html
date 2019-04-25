@@ -15,9 +15,13 @@
     <!-- built files will be auto injected -->
 
     <script>
+
       window.onload = function name(params) {
-        init_Vue('doc_id','https://srs.marinet.ru/testk/js/vue-cryptoPro-pdf-sign/backend/api_dss.php','/img/');
+        var params =  new URLSearchParams(window.location.search)
+        var id  = params.get('id');
+        init_Vue(id/*по умолчанию -берет из url=> ?id */,'https://srs.marinet.ru/testk/js/vue-cryptoPro-pdf-sign/backend/api_dss.php','/img/');
       }
+
     </script>
   </body>
 </html>
