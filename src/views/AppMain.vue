@@ -81,7 +81,7 @@ export default {
     "vue-support": vue_support
   },
   name:"app-main",
-  props: ["doc_id", "backend_url", "img_url"],
+  props: ["id", "backend_url", "img_url"],
   data() {
     return {
       loading_text: "",
@@ -110,6 +110,8 @@ export default {
     .init().then(e => console.warn("[Inited] ruscryptojs->", e))
     .catch(e=>console.log('Ошибка при cryptopro.init()=>',e));
 
+
+
     window.axios_instance = axios.create({
       headers: {
         crossDomain: true,
@@ -119,6 +121,8 @@ export default {
         responseType: "json"
       } /*,responseType: 'json'*/
     });
+
+
   },
   methods: {
     sel_cert_handler(){
@@ -160,21 +164,24 @@ export default {
 
     podpisat(stamp_prev) {
       //stamp_prev: 0-final, 1-prev;
-      this.loading_text = "загрузка .... 0/3";
-      let that = this;
+      this.loading_text = "загрузка .... 0/3"
+      const that = this
+
       let post_data = {
         cert_base64: this.cert64,
         pechat_pos: this.pechat_pos,
-        selected_sert: this.selected_sert,
-        doc_id: this.doc_id
+        selected_sert: this.selected_sert ,
       };
-      let url = `${
-        this.backend_url
-      }?action=sign&stage=1&stampGen=${stamp_prev}`;
+
+    if(!this.id) {
+      swal("id документа не передан. Попробуйте перезайти.")
+      return;
+    }
+      let url = `${this.backend_url}?action=sign&stage=1&stampGen=${stamp_prev}&id=${this.id}`;
       if (!stamp_prev) url = `${url}&ssid=${this.ssid}`; //если финальная стадия штампа
       axios_instance
         .post(url, post_data)
-        .then(res => {
+        .then( res => {
           console.log("stage1=>", res);
           try { res = eval(`[${res.data}]`)[0]; } catch (e) { this.echo_end_die({ stat: 0, msg: "Ошибка в ответе сервера на первой стадии!" }); }
           if (!res.stat) { throw res.msg; }
@@ -187,12 +194,15 @@ export default {
         })
         .catch(err => {
             console.log("podpisat catch err=>" + err);
-            this.echo_end_die({ stat: 0, msg: 'Сетевая ошибка!' });
-        });
+            this.echo_end_die({ stat: 0, msg: 'Сетевая ошибка!', err });
+            this.loading_text=''
+        })
+
     },
     createSign(stamp_prev) {
+
       console.log("[createSign] [HashValue] => " + this.HashValue);
-      let that = this;
+      const that = this;
       let Thumbprint = this.selected_sert.Thumbprint;
       let HashValue = this.HashValue;
       let cert64 = this.cert64;
@@ -207,11 +217,21 @@ export default {
 		.then(e2 => {
 			oStore.Certificates
 			.then(oFnd => {
-				oFnd.Find(cadesplugin.CAPICOM_CERTIFICATE_FIND_SUBJECT_NAME,'ФГБУ ""АМП ПРИМОРСКОГО КРАЯ И ВОСТОЧНОЙ АРКТИКИ""')
+        const Thumbprint =  this.selected_sert.Thumbprint;
+       /*window.oFnd = oFnd;
+        window.cadesplugin = cadesplugin;*/
+        debugger
+
+				//oFnd.Find(cadesplugin.CAPICOM_CERTIFICATE_FIND_SUBJECT_NAME,'ФГБУ ""АМП ПРИМОРСКОГО КРАЯ И ВОСТОЧНОЙ АРКТИКИ""')
+        oFnd.Find(cadesplugin.CAPICOM_CERTIFICATE_FIND_SHA1_HASH, Thumbprint)
 			.then(oCertificates => {
+        //debugger
 			oCertificates.Count
 			.then(count=>{
-				if(count==0) {alert("Нет сертификатов с таким именем!!!"); throw 'Нет сертификатов с таким именем!';}
+				if(count==0) {alert("Нет сертификатов с таким именем!!!"); {
+            this.loading_text=''
+          throw 'Нет сертификатов с таким именем!';}
+        }
 				oCertificates.Item(1)
 					.then(oCertificate=>window.oCertificate=oCertificate)
               .then( () => step2(HashValue) ).catch(e=>console.log('5'))
@@ -243,14 +263,17 @@ function step2 (HashValue){
                   () =>{
                     //debugger;
                     cadesplugin.CreateObjectAsync("CAdESCOM.RawSignature")
-                  .then( oRawSignature => oRawSignature.SignHash(oHashedData, oCertificate)
+                  .then( oRawSignature => {
+                    debugger
+                    oRawSignature.SignHash(oHashedData, oCertificate)
                     .then(e=>{ console.log('last then=>'+e);
                         cryptoVue.$children[0]._data.createdSign = e;
                         that.podpisat2(stamp_prev);
                     }).catch(e=>that.echo_end_die({ stat: 3, msg: 'Отменено пользователем (1)',err:e}))
-                ).catch(e=>that.echo_end_die({ stat: 3, msg: 'Отменено пользователем (2) ',err:e}))
+                  }
+                ).catch(e=>that.echo_end_die({ stat: 3, msg: 'Ошибка похожее на отмену пользователем (2) ',err:e}))
 
-        }).catch(e=>that.echo_end_die({ stat: 3, msg: e.message }))
+        }).catch(err=>that.echo_end_die({ stat: 3, msg: e.message,err }))
       }).catch(e=>console.log('bb 11111111111',e))
       })
       .catch(e=>{
@@ -273,6 +296,11 @@ function step2 (HashValue){
       let url = `${
         this.backend_url
       }?action=sign&stage=2&stampGen=${stamp_prev}&ssid=${this.ssid}`;
+
+
+
+
+
       axios_instance
         .post(url, data)
         .then(res => {
@@ -282,10 +310,11 @@ function step2 (HashValue){
             this.echo_end_die({ stat: 0, msg: "Данные не пришли от сервера!" });
           try {
             d = eval(`[${d}]`)[0];
-          } catch (e) {
+          } catch (err) {
             this.echo_end_die({
               stat: 0,
-              msg: "Ошибка в ответе сервера во второй стадии."
+              msg: "Ошибка в ответе сервера во второй стадии.",
+              err
             });
           }
           if (!d.base64Binary) {
@@ -310,7 +339,8 @@ function step2 (HashValue){
                 console.log("podpisat2 try catch err=>" + err);
                 this.echo_end_die({
                     stat: 0,
-                    msg: "Ошибка при разборе штампа предпросмотра!"
+                    msg: "Ошибка при разборе штампа предпросмотра!",
+                    err
                 });
             }
           } else {
@@ -337,15 +367,18 @@ function step2 (HashValue){
         })
         .catch(err => {
           console.log("podpisat2 catch err=>" + err);
-          this.echo_end_die({ stat: 0, msg: 'Ошибка во второй стадии подписания!' });
+          this.echo_end_die({ stat: 0, msg:'Ошибка во второй стадии подписания!',err });
         });
     },
 
-    echo_end_die({ stat, msg }) {
-        console.warn('echo_end_die=>',arguments);
-        if(!stat) swal("Ошибка!!", { className: "red-bg", icon: "error", text: msg });
+    echo_end_die({ stat, msg, err }) {
 
-        if(stat==3) swal("Ошибка!!", { className: "red-bg", icon: "error", text: msg });
+
+        const text = typeof err == 'object' && err.message && err.message || msg
+
+        console.warn('echo_end_die=>',arguments);
+        if(!stat) swal("Ошибка!!", { className: "red-bg", icon: "error", text });
+        if(stat==3) swal("Ошибка!!", { className: "red-bg", icon: "error", text });
         this.stat = stat;
         this.msg = msg;
         this.loading_text = "";
