@@ -220,7 +220,7 @@ export default {
         const Thumbprint =  this.selected_sert.Thumbprint;
        /*window.oFnd = oFnd;
         window.cadesplugin = cadesplugin;*/
-        debugger
+     //   debugger
 
 				//oFnd.Find(cadesplugin.CAPICOM_CERTIFICATE_FIND_SUBJECT_NAME,'ФГБУ ""АМП ПРИМОРСКОГО КРАЯ И ВОСТОЧНОЙ АРКТИКИ""')
         oFnd.Find(cadesplugin.CAPICOM_CERTIFICATE_FIND_SHA1_HASH, Thumbprint)
@@ -264,7 +264,7 @@ function step2 (HashValue){
                     //debugger;
                     cadesplugin.CreateObjectAsync("CAdESCOM.RawSignature")
                   .then( oRawSignature => {
-                    debugger
+                  //  debugger
                     oRawSignature.SignHash(oHashedData, oCertificate)
                     .then(e=>{ console.log('last then=>'+e);
                         cryptoVue.$children[0]._data.createdSign = e;
@@ -295,7 +295,7 @@ function step2 (HashValue){
       this.loading_text = "загрузка .... 2/3";
       let url = `${
         this.backend_url
-      }?action=sign&stage=2&stampGen=${stamp_prev}&ssid=${this.ssid}`;
+      }?action=sign&stage=2&stampGen=${stamp_prev}&ssid=${this.ssid}&id=${this.id}`;
 
 
 
@@ -306,48 +306,44 @@ function step2 (HashValue){
         .then(res => {
           console.log("stage2=>", res);
           let d = res.data;
-          if (!d)
-            this.echo_end_die({ stat: 0, msg: "Данные не пришли от сервера!" });
-          try {
-            d = eval(`[${d}]`)[0];
-          } catch (err) {
-            this.echo_end_die({
-              stat: 0,
-              msg: "Ошибка в ответе сервера во второй стадии.",
-              err
-            });
+          try { d = eval(`[${d}]`)[0]; }
+          catch (err) { return this.echo_end_die({stat: 0, msg: "Ошибка при разборе ответа сервера во второй стадии", err }); }
+
+if(typeof d != 'object' || typeof d.stat == 'undefined' ) return this.echo_end_die({ stat: 0, msg: "Ошибка сервера во время второй стадии подписания!" })
+
+          if(!d.stat) {
+            const err = d.ALL_ERROR && d.ALL_ERROR.detail && d.ALL_ERROR.detail.DssFault && d.ALL_ERROR.detail.DssFault.Message || res.msg || 'Ошибка при разборе штампа предпросмотра'
+            this.echo_end_die({ stat: 0,msg: err, });
           }
-          if (!d.base64Binary) {
-            console.log("=>Залез в !d.base64Binary");
-            this.echo_end_die({ stat: 0, msg: "base64Binary не пришел от сервера!" });
-          }
-          if (stamp_prev == 1) {
-            try {
-              // echo_end_die(["stat"=>1,"base64Binary"=> $base64Binary,"doc_prev"=>$doc_prev]);
-              //that.stamp_img = "data:image/png;base64,"+res.data.split('[BREAK]')[0];   //stamp_img
-              //that.doc_prev =  "data:image/jpg;base64,"+res.data.split('[BREAK]')[1];   //doc_prev
-              if (!d.doc_prev) {
-                console.log("=>Залез в !d.doc_prev");
-                this.echo_end_die({
-                  stat: 0,
-                  msg: "doc_prev не пришел от сервера!"
-                });
+
+            if(d.stat) {
+              if (stamp_prev == 1) {
+                try {
+                  // echo_end_die(["stat"=>1,"base64Binary"=> $base64Binary,"doc_prev"=>$doc_prev]);
+                  //that.stamp_img = "data:image/png;base64,"+res.data.split('[BREAK]')[0];   //stamp_img
+                  //that.doc_prev =  "data:image/jpg;base64,"+res.data.split('[BREAK]')[1];   //doc_prev
+                  this.stamp_img = "data:image/png;base64," + d.base64Binary; //split('[BREAK]')[0];
+                  this.doc_prev = "data:image/jpg;base64," + d.doc_prev; //split('[BREAK]')[1];
+                } catch (err) {
+                    console.log("podpisat2 try catch err=>" + err);
+                    this.echo_end_die({
+                        stat: 0,
+                        msg: "Ошибка при разборе штампа предпросмотра!",
+                        err
+                    });
+                }
+              } else {
+                this.base64Binary = d.base64Binary;
+                this.loading_text = "";
               }
-              this.stamp_img = "data:image/png;base64," + d.base64Binary; //split('[BREAK]')[0];
-              this.doc_prev = "data:image/jpg;base64," + d.doc_prev; //split('[BREAK]')[1];
-            } catch (err) {
-                console.log("podpisat2 try catch err=>" + err);
-                this.echo_end_die({
-                    stat: 0,
-                    msg: "Ошибка при разборе штампа предпросмотра!",
-                    err
-                });
+
+              if (stamp_prev == 1 && !d.doc_prev) return this.echo_end_die({ stat: 0, msg: "doc_prev не пришел от сервера!" })
+              if (!d.base64Binary) return this.echo_end_die({ stat: 0, msg: "base64Binary не пришел от сервера!" })
+
             }
-          } else {
-            this.base64Binary = d.base64Binary;
-            this.loading_text = "";
-          }
+
         })
+
         .then(() => {
           if (stamp_prev == 1) {
             this.loading_text = ""; //надо отобразить рисунок до нанесения печати (а то JQUERY не пашет!)
@@ -367,7 +363,8 @@ function step2 (HashValue){
         })
         .catch(err => {
           console.log("podpisat2 catch err=>" + err);
-          this.echo_end_die({ stat: 0, msg:'Ошибка во второй стадии подписания!',err });
+          const msg = err || 'Ошибка во второй стадии подписания!';
+          this.echo_end_die({ stat: 0, msg, err });
         });
     },
 
