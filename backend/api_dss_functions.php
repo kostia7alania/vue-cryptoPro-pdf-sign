@@ -25,7 +25,7 @@
     $stamp_label = $name;
     //var_dump($output_array);die; echo $stamp_label;die;
     //echo $path;die;
-    $img_stamp      = base64_encode(file_get_contents("./processing/gerb_RF.png", 1));
+    $img_stamp      = base64_encode(file_get_contents(__DIR__."./processing/gerb_RF.png", 1));
     $deystvitelen   = "c $validFrom по $validTo";  //'с 12.12.2017 по 12.12.2018',
 
     function space($e=1) {return '{"Text":" ","Font": {"FontSize":'.$e.'} },';}
@@ -68,7 +68,7 @@
 }
 
 // сохраняем ПДФ из БЕЙС64  на диск!
-function base64save($document, $savePath){
+function base64save($document, $savePath) {
     $source = fopen($document, 'r');  //$randName = uniqid();
     $destination = fopen($savePath, 'w');
     stream_copy_to_stream($source, $destination);
@@ -92,7 +92,11 @@ function base64save($document, $savePath){
 */
 
 function throw_err($msg){echo json_encode(["stat"=>0,"msg"=>$msg]);die;}
-function echo_end_die($data){echo json_encode($data); die;}
+function echo_end_die($data) {
+  header('Content-Type: application/json');
+  echo json_encode($data);
+  die;
+}
 function VerifyCertificate($rawCertificate){
     try {           $urlVerify = 'http://ssd.marinet.ru/ssd_verif/service.svc?wsdl';
                     $soap_service = new SoapClient ( $urlVerify, ['cache_wsdl'     => WSDL_CACHE_NONE] );
@@ -109,7 +113,7 @@ function VerifyCertificate($rawCertificate){
                    // echo json_encode($data);
     } catch(Exception $e) {
 
-        return ['stat' => 0, 'msg' => 'Err => VerifyCertificate(); __getLastRequest()=>'.$soap_service->__getLastRequest().'<br><br> getMessage()=>'.$e->getMessage().';<br><br> ALL ERROR=>'.$e];
+        return ['stat' => 0, 'msg' => 'Err => VerifyCertificate(); __getLastRequest()=>'.$soap_service->__getLastRequest().'<br><br> getMessage()=>'.$e->getMessage().'ALL_ERROR=>'.$e];
 
     }
 } /*test:*/ //$verif = VerifyCertificate($urlVerify, $rawCertificate); echo json_encode($verif["Result"]); /*true|false*/ die;
@@ -177,9 +181,9 @@ function stage1($ssid, $url, $rawCertificate, $template, $classmap, $document){
 
           var_dump($e);die;
 
-            echo json_encode(['stat'=>0,'msg'=>'Ошибка Soap Service','getLastRequest()'=>$soap_service->__getLastRequest(),'getMessage()'=>$e->getMessage(),'ALL ERROR'=>$e,'addition'=>$soap_service]);
+            echo json_encode(['stat'=>0,'msg'=>'Ошибка Soap Service','getLastRequest()'=>$soap_service->__getLastRequest(),'getMessage()'=>$e->getMessage(),'ALL_ERROR'=>$e,'addition'=>$soap_service]);
             die;
-            //throw_err('ОШИБКА сопы:__getLastRequest()=>'.$soap_service->__getLastRequest().'getMessage()=>'.$e->getMessage().'; ALL ERROR=>'.$e);
+            //throw_err('ОШИБКА сопы:__getLastRequest()=>'.$soap_service->__getLastRequest().'getMessage()=>'.$e->getMessage().'; ALL_ERROR=>'.$e);
         }
     } else {
         echo 'cert_base64->'.strlen($_POST['cert_base64']); //die;
@@ -251,9 +255,13 @@ function stage2($url, $rawCertificate, $template, $classmap, $document){
 
 
     } catch (Exception $e) {
-        echo json_encode(['stat'=>0,'msg'=>'Ошибка Soap Service','getLastRequest()'=>$soap_service->__getLastRequest(),'getMessage()'=>$e->getMessage(),'ALL ERROR'=>$e]);
+        echo echo_end_die(['stat'=>0,'msg'=>'Ошибка Soap Service',
+          //'getLastRequest()'=> mysql_real_escape_string($soap_service->__getLastRequest()),
+          //'getMessage()'=> mysql_real_escape_string($e->getMessage()),
+          'ALL_ERROR'=> $e
+        ]);
         die;
-        //throw_err('Err:__getLastResponse()=>'.$soap_service->__getLastResponse().'   Err:__getLastRequest()=>'.$soap_service->__getLastRequest().'; getMessage()=>'.$e->getMessage().'; ALL ERROR=>'.$e);
+        //throw_err('Err:__getLastResponse()=>'.$soap_service->__getLastResponse().'   Err:__getLastRequest()=>'.$soap_service->__getLastRequest().'; getMessage()=>'.$e->getMessage().'; ALL_ERROR=>'.$e);
     }
  }
 ?>
