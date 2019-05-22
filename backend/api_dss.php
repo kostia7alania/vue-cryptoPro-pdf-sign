@@ -12,7 +12,6 @@ if ($_SERVER['REQUEST_METHOD'] === 'OPTIONS') {
     }
 
 //header('Content-Type: application/x-www-form-urlencoded');
-
  header("Content-type: text/xml;charset=window-1251");
  header('Content-Type:text/html;charset=UTF-8');
 
@@ -63,11 +62,15 @@ if(!isset($_SESSION)){      session_start();            $ssid = session_id();   
 if(isset($_POST['cert_base64'])){
                 $_SESSION['cert_base64'] = $_POST['cert_base64'];
                 $rawCertificate = $_POST['cert_base64'];
-} elseif (isset($_SESSION['cert_base64']))
+} elseif (isset($_SESSION['cert_base64'])) {
                 $rawCertificate = $_SESSION['cert_base64'];
-
+} else {
+  // чувак вручную открыл ссылку
+  echo json_encode ( ['stat'=>0, 'msg'=>'Cert not found!'] ); die;
+}
 //$rawCertificate	=	'MIIDTTCCAvygAwIBAgITEgAo/xmgmogykwRyHAAAACj/GTAIBgYqhQMCAgMwfzEjMCEGCSqGSIb3DQEJARYUc3VwcG9ydEBjcnlwdG9wcm8ucnUxCzAJBgNVBAYTAlJVMQ8wDQYDVQQHEwZNb3Njb3cxFzAVBgNVBAoTDkNSWVBUTy1QUk8gTExDMSEwHwYDVQQDExhDUllQVE8tUFJPIFRlc3QgQ2VudGVyIDIwHhcNMTgwNTIyMDU1MDA2WhcNMTgwODIyMDYwMDA2WjAUMRIwEAYDVQQDDAlTVFJPTkdHZ2cwgaowIQYIKoUDBwEBAQIwFQYJKoUDBwECAQIBBggqhQMHAQECAwOBhAAEgYC6r8fqmZVixavsbN5jwzJwDC99v+ULJsqrvckJio2BDx9kXXtX/K78isuQcC2eTxkL78Hth01j4F3MPuWszokQw1UCO3u+pxB6ixbU0e6EB9FV5FniFqyj7sfVykR2jGJlG96GN1zio5ySBUuoNjOauArA2Pi8wuM3wtO/Ie2q6aOCAXAwggFsMA4GA1UdDwEB/wQEAwIE8DATBgNVHSUEDDAKBggrBgEFBQcDAjAdBgNVHQ4EFgQUJPtZJdx2r7uH7CSlxg3csra0fPkwHwYDVR0jBBgwFoAUFTF8sI0a3mbXFZxJUpcXJLkBeoMwWQYDVR0fBFIwUDBOoEygSoZIaHR0cDovL3Rlc3RjYS5jcnlwdG9wcm8ucnUvQ2VydEVucm9sbC9DUllQVE8tUFJPJTIwVGVzdCUyMENlbnRlciUyMDIuY3JsMIGpBggrBgEFBQcBAQSBnDCBmTBhBggrBgEFBQcwAoZVaHR0cDovL3Rlc3RjYS5jcnlwdG9wcm8ucnUvQ2VydEVucm9sbC90ZXN0LWNhLTIwMTRfQ1JZUFRPLVBSTyUyMFRlc3QlMjBDZW50ZXIlMjAyLmNydDA0BggrBgEFBQcwAYYoaHR0cDovL3Rlc3RjYS5jcnlwdG9wcm8ucnUvb2NzcC9vY3NwLnNyZjAIBgYqhQMCAgMDQQB+Ty/WjMuVPiNsy1liF5tYHW4sJvIiM8Nhl0iKX0HWl2jCUKHSqiM+2QuP28dnuETGLPdDKWDlV/5teoyS7/F9';
 $verifyingCert = VerifyCertificate($rawCertificate)["msg"]["Result"];            // проверка сертификата на валидность!
+echo 1;die;
 
 if(!$rawCertificate) echo_end_die(["stat"=>0,"msg"=> 'Cert is undefined!']);
 if($verifyingCert) echo_end_die(["stat"=>0,"msg"=> $rawCertificate]); // поправить на продакшене!  (Походу -тут надо добавить отрицание условия )
@@ -89,6 +92,7 @@ if($_GET['stampGen']==1) { //PREVIEW doc SIGN:
     if( $_GET['action'] == 'sign' ) {
             $doc_name = "stamp_white_templ";
             if( $_GET['stage'] == 1 ) {
+
                 exec('convert -size '.($fixX+2).'x'.($fixY+2)." xc:white $path/$doc_name.pdf"); // создаем белый PDF  189x100
                 $document = base64_encode(file_get_contents("$path/$doc_name.pdf", 1));         // читаем его из диска;
                 stage1($ssid, $url, $rawCertificate, $template, $classmap, $document);//<--die            // <------------------- подписываем его <-------------------
@@ -107,9 +111,9 @@ if($_GET['stampGen']==1) { //PREVIEW doc SIGN:
 
                     echo_end_die([
                         "stat"       =>  1,
-                        "base64Binary"=> $base64Binary,
-                        "doc_prev"    => $doc_prev,
-                        "ssid"        => $ssid
+                        "base64Binary"=> "$base64Binary",
+                        "doc_prev"    => "$doc_prev",
+                        "ssid"        => "$ssid"
                     ]);
                     //echo $base64Binary."[BREAK]".$doc_prev; die;   //stamp_img
             } else { echo_end_die(["stat"=>0,"msg"=> 'Stage required']); }
