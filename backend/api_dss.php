@@ -1,9 +1,9 @@
 ﻿<?php   //echo   exec('whoami');
 ini_set('error_reporting', E_ALL); ini_set('display_errors', 1); ini_set('display_startup_errors', 1);
+header('Access-Control-Allow-Methods: POST, GET, DELETE, PUT, PATCH, OPTIONS');
+header('Access-Control-Allow-Origin: *');
 
 if ($_SERVER['REQUEST_METHOD'] === 'OPTIONS') {
-        header('Access-Control-Allow-Origin: *');
-        header('Access-Control-Allow-Methods: POST, GET, DELETE, PUT, PATCH, OPTIONS');
         header('Access-Control-Allow-Headers: token, Origin, Content-Type, X-Auth-Token , Authorization, X-Requested-With, Cache-Control, Pragma, Accept, Accept-Encoding');
         header('Access-Control-Max-Age: 1728000');
         header('Content-Length: 0');
@@ -56,21 +56,20 @@ var percent = pt*100/12 ///8.(3)
 Точка с координатами (0, 0) соответствует левому нижнему углу страницы
 */
 
-if(isset($_GET['ssid'])){   session_id($_GET['ssid']);  session_start();  $ssid = $_GET['ssid'];     }
-if(!isset($_SESSION)){      session_start();            $ssid = session_id();   }
+if(isset($_GET['ssid'])) {   session_id($_GET['ssid']);   $ssid = $_GET['ssid'];     }
+if(!isset($_SESSION) ) {      session_start();  $ssid = session_id(); }
+if(!isset($ssid))  $ssid = session_id();
 
 if(isset($_POST['cert_base64'])){
                 $_SESSION['cert_base64'] = $_POST['cert_base64'];
                 $rawCertificate = $_POST['cert_base64'];
 } elseif (isset($_SESSION['cert_base64'])) {
                 $rawCertificate = $_SESSION['cert_base64'];
-} else {
-  // чувак вручную открыл ссылку
+} else {// чувак вручную открыл ссылку
   echo json_encode ( ['stat'=>0, 'msg'=>'Cert not found!'] ); die;
 }
 //$rawCertificate	=	'MIIDTTCCAvygAwIBAgITEgAo/xmgmogykwRyHAAAACj/GTAIBgYqhQMCAgMwfzEjMCEGCSqGSIb3DQEJARYUc3VwcG9ydEBjcnlwdG9wcm8ucnUxCzAJBgNVBAYTAlJVMQ8wDQYDVQQHEwZNb3Njb3cxFzAVBgNVBAoTDkNSWVBUTy1QUk8gTExDMSEwHwYDVQQDExhDUllQVE8tUFJPIFRlc3QgQ2VudGVyIDIwHhcNMTgwNTIyMDU1MDA2WhcNMTgwODIyMDYwMDA2WjAUMRIwEAYDVQQDDAlTVFJPTkdHZ2cwgaowIQYIKoUDBwEBAQIwFQYJKoUDBwECAQIBBggqhQMHAQECAwOBhAAEgYC6r8fqmZVixavsbN5jwzJwDC99v+ULJsqrvckJio2BDx9kXXtX/K78isuQcC2eTxkL78Hth01j4F3MPuWszokQw1UCO3u+pxB6ixbU0e6EB9FV5FniFqyj7sfVykR2jGJlG96GN1zio5ySBUuoNjOauArA2Pi8wuM3wtO/Ie2q6aOCAXAwggFsMA4GA1UdDwEB/wQEAwIE8DATBgNVHSUEDDAKBggrBgEFBQcDAjAdBgNVHQ4EFgQUJPtZJdx2r7uH7CSlxg3csra0fPkwHwYDVR0jBBgwFoAUFTF8sI0a3mbXFZxJUpcXJLkBeoMwWQYDVR0fBFIwUDBOoEygSoZIaHR0cDovL3Rlc3RjYS5jcnlwdG9wcm8ucnUvQ2VydEVucm9sbC9DUllQVE8tUFJPJTIwVGVzdCUyMENlbnRlciUyMDIuY3JsMIGpBggrBgEFBQcBAQSBnDCBmTBhBggrBgEFBQcwAoZVaHR0cDovL3Rlc3RjYS5jcnlwdG9wcm8ucnUvQ2VydEVucm9sbC90ZXN0LWNhLTIwMTRfQ1JZUFRPLVBSTyUyMFRlc3QlMjBDZW50ZXIlMjAyLmNydDA0BggrBgEFBQcwAYYoaHR0cDovL3Rlc3RjYS5jcnlwdG9wcm8ucnUvb2NzcC9vY3NwLnNyZjAIBgYqhQMCAgMDQQB+Ty/WjMuVPiNsy1liF5tYHW4sJvIiM8Nhl0iKX0HWl2jCUKHSqiM+2QuP28dnuETGLPdDKWDlV/5teoyS7/F9';
 $verifyingCert = VerifyCertificate($rawCertificate)["msg"]["Result"];            // проверка сертификата на валидность!
-echo 1;die;
 
 if(!$rawCertificate) echo_end_die(["stat"=>0,"msg"=> 'Cert is undefined!']);
 if($verifyingCert) echo_end_die(["stat"=>0,"msg"=> $rawCertificate]); // поправить на продакшене!  (Походу -тут надо добавить отрицание условия )
@@ -81,7 +80,7 @@ $fixX=236;  //189; размер печати
 $fixY=99;   //100
 
 //$path = 'C:/inetpub/wwwroot/wp_simple/cryptopro-pdf-sign-in-browser-with-vuejs/processing';
-$path = './processing';
+$path = __DIR__.'./processing';
 $example_doc = "$path/example.pdf";
 
 if($_GET['stampGen']==1) { //PREVIEW doc SIGN:
