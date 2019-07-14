@@ -51,44 +51,44 @@
 </template>
 
 <script>
-import modal from './Modal'
-import myButton from '../components/my-button.vue';
+import modal from "./Modal";
+import myButton from "../components/my-button.vue";
 import FeedBack from "./FeedBack.vue";
 export default {
-  name: 'vue-support',
-  components: { 'app-modal':modal, FeedBack, myButton },
-  props: ['img_url'],
+  name: "vue-support",
+  components: { "app-modal": modal, FeedBack, myButton },
   data() {
     return {
       rating: null,
       showModal: false,
-      feedback_text:null
+      feedback_text: null
     };
   },
-  watch:{
-
-  },
+  watch: {},
   mounted() {
     // подписываемся на событие keydown
-    if (typeof document !== 'undefined') {
-      document.body.addEventListener('keydown', this.handleTabKey)
+    if (typeof document !== "undefined") {
+      document.body.addEventListener("keydown", this.handleTabKey);
     }
-    if(this.$el.focus) {
-      this.$el.focus() // фокус переводим на окно, при монтировании
+    if (this.$el.focus) {
+      this.$el.focus(); // фокус переводим на окно, при монтировании
     }
-},
- destroyed () { // отписываемся
-    if (typeof document !== 'undefined') {
-      document.body.removeEventListener('keydown', this.handleTabKey)
+  },
+  destroyed() {
+    // отписываемся
+    if (typeof document !== "undefined") {
+      document.body.removeEventListener("keydown", this.handleTabKey);
     }
-},
+  },
+  computed: {
+    img_url() {
+      return this.$store.state.IMG_URL;
+    }
+  },
   methods: {
-    saveStateChange(val) {
-      if(!val || val == 'false'){ localStorage.clear(); }   //в момент убирания птички - удаляются все записи из локалСторага;
-      this.saveToStoreAndLocalStorage('saveState', val);//пишем в локалстораг и в стор VUEx
-    },
+    saveStateChange(val) {},
     goTour() {
-      this.$store.commit('changeData', { prop: 'tour', state: true } );
+      this.$store.commit("changeData", { prop: "tour", state: true });
       introJs.start();
       //
       //this.$intro().start();
@@ -101,48 +101,52 @@ export default {
 
       this.showModal = false;
     },
-    closeModal(){
+    closeModal() {
       this.showModal = false;
-      this.changeState('main');
+      this.changeState("main");
     },
-    changeState(state){
-      this.$store.commit('changeData', { prop: 'helpStatus', state: state } );
+    changeState(state) {
+      this.$store.commit("changeData", { prop: "helpStatus", state: state });
     },
-    handleTabKey(e) { console.log('handleTabKey(e)=>>>',e);
-       if (e.keyCode === 9 && this.modals.length) {
-         e.preventDefault() // если есть окна, глушим Tab/Shift-Tab
-       } // пока полностью отключаю Tab. Надо подумать, как лучше его глушить только вне активного окна.
+    handleTabKey(e) {
+      console.log("handleTabKey(e)=>>>", e);
+      if (e.keyCode === 9 && this.modals.length) {
+        e.preventDefault(); // если есть окна, глушим Tab/Shift-Tab
+      } // пока полностью отключаю Tab. Надо подумать, как лучше его глушить только вне активного окна.
     },
-      click_handler(e){
-          if(e.path[0].classList.value == 'my-modal-wrapper') { console.log('клик во враппер модального!');
-              this.closeModal();
-          }
+    click_handler(e) {
+      if (e.path[0].classList.value == "my-modal-wrapper") {
+        console.log("клик во враппер модального!");
+        this.closeModal();
       }
+    }
   }
 };
 </script>
 
 <style scoped lang="scss">
-.check { padding-top:10px; }
+.check {
+  padding-top: 10px;
+}
 .header {
   font-weight: 888;
-  font-size:15px;
+  font-size: 15px;
 }
 </style>
 
 <style lang="scss">
-
 .back {
-  font-size:30px;
+  font-size: 30px;
 }
 
-
-.vueSupport{ display: flex; }
+.vueSupport {
+  display: flex;
+}
 
 .get-help-row {
   display: flex;
   flex-direction: column;
-  transition: .4s;
+  transition: 0.4s;
   align-items: center;
   cursor: pointer;
   padding: 7px 19px;
@@ -176,9 +180,9 @@ export default {
 }
 
 .my-modal-container {
-    display: flex;
-    flex-direction: column;
-    align-items: center;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
 
   width: 300px;
   margin: 0px auto;
@@ -191,18 +195,18 @@ export default {
 }
 
 .my-modal-header {
-        border-bottom: 1px solid #2f9d6b;
-        width: 100%;
-        text-align: center;
-        padding-bottom:10px;
-        margin-bottom:10px;
-    &>div {
-      margin: 0;
-      color: #42b983;
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-    }
+  border-bottom: 1px solid #2f9d6b;
+  width: 100%;
+  text-align: center;
+  padding-bottom: 10px;
+  margin-bottom: 10px;
+  & > div {
+    margin: 0;
+    color: #42b983;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+  }
 }
 
 .my-modal-body {
@@ -212,8 +216,6 @@ export default {
 .modal-default-button {
   float: right;
 }
-
-
 
 /*
  * The following styles are auto-applied to elements with
