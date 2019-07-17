@@ -1,16 +1,17 @@
 <template>
-  <div class="container">
+  <nav class="container">
     <ul class="progressbar">
       <li
         class="menu__item"
         v-for="(item, i) of menu__items"
         :key="i"
-        :class=" step==i && 'active' "
+        :class=" step==i && 'active' || i > step  && 'menu__item-disabled' "
+        @click="steps_click(item)"
       >
       <span>{{item}}</span>
       </li>
     </ul>
-  </div>
+  </nav>
 </template>
 
 <script>
@@ -26,16 +27,29 @@ export default {
     return {
       menu__items: ["Сертификат", "Положение", "Предпросмотр", "Завершение"]
     };
+  },
+  methods: {
+    steps_click(item) {
+      const com = e => this.$store.commit(e, null);
+      // console.log(item);
+      if (item == "Сертификат") {
+        com("SET_DOC_PREV");
+        com("SET_BASE64_BINARY");
+      }
+      item == "Положение" && com("SET_BASE64_BINARY");
+    }
   }
 };
 </script>
 <style lang="scss" scope>
+.menu__item-disabled {
+  cursor: not-allowed !important;
+}
 li.menu__item {
   cursor: pointer;
   &:hover {
     font-weight: 555;
   }
-
 }
 
 .progressbar {
