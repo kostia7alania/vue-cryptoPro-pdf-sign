@@ -69,9 +69,15 @@
 
 // сохраняем ПДФ из БЕЙС64  на диск!
 function base64save($document, $savePath) {
-    $source = fopen($document, 'r');  //$randName = uniqid();
-    $destination = fopen($savePath, 'w');
-    stream_copy_to_stream($source, $destination);
+  $myfile = fopen( $savePath, "w") or die("Unable to open file!");
+  fwrite($myfile, $document);
+  fclose($myfile);
+  return;
+  /*
+  $source = fopen($document, 'r');  //$randName = uniqid();
+  $destination = fopen($savePath, 'w');
+  stream_copy_to_stream($source, $destination);
+  */
 }
 /*
     var_dump($output); fclose($source);    fclose($destination);
@@ -93,6 +99,7 @@ function base64save($document, $savePath) {
 
 function throw_err($msg){echo json_encode(["stat"=>0,"msg"=>$msg]);die;}
 function echo_end_die($data) {
+  ob_end_clean();
   header('Content-Type: application/json');
   echo json_encode($data);
   die;
@@ -130,13 +137,8 @@ function parmGen($name, $val){
     return new SoapVar($name, XSD_STRING, null, null, $val, $ns1 );
 }
 
-function stage1($ssid, $url, $rawCertificate, $template, $classmap, $document){
-
-
-
-
+function stage1($url, $rawCertificate, $template, $classmap, $document) {
     (strlen($_POST['cert_base64']) < 30 || strlen($_POST['cert_base64']) > 4000) && throw_err('Невалидный формат сертификата!');
-
         //try {
             $soap_service = new SoapClient( $url, array("classmap"=>$classmap,"trace" => true,"exceptions" => true) );  $soap_service->__setSoapHeaders();
             $res = new PreSignDocumentResponse();
@@ -145,50 +147,34 @@ function stage1($ssid, $url, $rawCertificate, $template, $classmap, $document){
                 $parm[] = new SoapVar('PDF',            XSD_STRING, null, null, 'signatureType',    $ns1 );
                 $parm[] = new SoapVar($rawCertificate,  XSD_STRING, null, null, 'rawCertificate',   $ns1 );
            */
-
-
             $parm   = [parmGen($document,'document')];
             $parm[] = parmGen('PDF','signatureType');
             $parm[] = parmGen($rawCertificate,'rawCertificate');
-             //echo $document;
-
             $parmKeyVal   = [soapVarGen('PDFFormat','CAdES')];
             $parmKeyVal[] = soapVarGen('CADESType','XLT1');
             $parmKeyVal[] = soapVarGen('TSPAddress','http://tsp.ncarf.ru/tsp/tsp.srf');
             $parmKeyVal[] = soapVarGen('PDFReason','1');
             $parmKeyVal[] = soapVarGen('PDFLocation','2');
-            //https://localhost/TSP
-            //https://ssd.marinet.ru/TSP/
-            //http://testca2.cryptopro.ru/tsp/tsp.srf
-          /*  $parmKeyVal[] = soapVarGen('PdfSignatureTemplateId',2);
-            $parmKeyVal[] = soapVarGen('PdfSignatureAppearance',$template);*/
-
+            //https://localhost/TSP //https://ssd.marinet.ru/TSP/ //http://testca2.cryptopro.ru/tsp/tsp.srf
+            ///*
+            $parmKeyVal[] = soapVarGen('PdfSignatureTemplateId',2);
+            $parmKeyVal[] = soapVarGen('PdfSignatureAppearance',$template);
+            //*/
             $ns1 = 'http://dss.cryptopro.ru/services/2016/01/';
             $parm[] = new SoapVar($parmKeyVal, SOAP_ENC_OBJECT,  null, null, 'signatureParams', $ns1);
-
 /*           file_put_contents(__DIR__.'/processing/doc-base64!!!.txt', serialize($parm));*/
-
-
-
             $res = $soap_service->PreSignDocument( new SoapVar($parm, 301) );
-
-
             $HashValue      = base64_encode($res->PreSignDocumentResult->HashValue);
             $СacheObjectId  = $res->PreSignDocumentResult->СacheObjectId;
-
             /*echo $soap_service->__getLastRequest();
             die;*/
+
             echo_end_die([
                 "stat"           =>  1,
                 "HashValue"      =>  $HashValue,
                 "СacheObjectId"  =>  $СacheObjectId,
-                "ssid"           =>  $ssid
             ]);
-
             /*} catch (Exception $e) {
-
-
-
           print_r($e->getMessage());die;
             echo json_encode(['stat'=>0,'msg'=>'Ошибка Soap Service','getLastRequest()'=>$soap_service->__getLastRequest(),'getMessage()'=>$e->getMessage(),'ALL_ERROR'=>$e,'addition'=>$soap_service]);
             die;
@@ -199,19 +185,16 @@ function stage1($ssid, $url, $rawCertificate, $template, $classmap, $document){
 
 function stage2($url, $rawCertificate, $template, $classmap, $document){
 /***
-    $string1 = 'V2h5IEkgY2FuJ3QgZG8gdGhpcyEhISEh';
+    $string1 = 'V2h5IEkgY2FuJ3QgZG8gdGhpcyEhISEh'; // base64
     $binary = base64_decode($string1);
     $hex = bin2hex($binary);
 ***/
-
-
     $signedHashValue = $_POST['HashValue'];
     $cacheObjectId   = $_POST['cacheObjectId'];
     $signatureValue  = $_POST['createdSign'];
-
     try {
-        $soap_service = new SoapClient( $url, array("classmap"=>$classmap,"trace" => true,"exceptions" => true) ); $soap_service->__setSoapHeaders();
-        $post = new PostSignDocumentResponse();
+      $soap_service = new SoapClient( $url, array("classmap"=>$classmap,"trace" => true,"exceptions" => true) ); $soap_service->__setSoapHeaders();
+      $post = new PostSignDocumentResponse();
             /*
                 $parm = [new SoapVar($cacheObjectId,  XSD_STRING, null, null, 'cacheObjectId', $ns1 )];
                 $parm[] = new SoapVar($signedHashValue,XSD_STRING, null, null, 'signedHashValue', $ns1 );
@@ -230,39 +213,92 @@ function stage2($url, $rawCertificate, $template, $classmap, $document){
 
         $parmKeyVal   = [soapVarGen('PDFFormat','CAdES')];
         $parmKeyVal[] = soapVarGen('TSPAddress','http://tsp.ncarf.ru/tsp/tsp.srf');
-
-          /*$parmKeyVal[] = soapVarGen('PdfSignatureTemplateId',2);
-            $parmKeyVal[] = soapVarGen('PdfSignatureAppearance',$template);*/
-
+        ///*
+        $parmKeyVal[] = soapVarGen('PdfSignatureTemplateId',2);
+        $parmKeyVal[] = soapVarGen('PdfSignatureAppearance',$template);
+        //*/
         $ns1 = 'http://dss.cryptopro.ru/services/2016/01/';
         $parm[] = new SoapVar($parmKeyVal, SOAP_ENC_OBJECT, null, null, 'signatureParams' , $ns1);
-/*      var_dump([
-            "cacheObjectId"=>$cacheObjectId,
-            "signedHashValue"=>$signedHashValue,
-            "signatureValue"=>$signatureValue
-        ]);  die;
-*/
         $post = $soap_service->PostSignDocument( new SoapVar($parm, 301) );      //==тут ошибка вылетает!;(
         $base64Binary      = $post->PostSignDocumentResult;
-
-
-
+        return  $base64Binary;
         //echo json_encode(['stat'=>0,'msg'=>'Ошибка Soap Service','getLastRequest()'=>$soap_service->__getLastRequest()]);
         //echo $soap_service->__getLastRequest(); die;
-        // base64save($base64Binary, "./processing/sex.txt");
-        return  [
-                    "stat" => 1,
-                    "base64Binary" => 'data:application/pdf;base64,'.base64_encode($base64Binary)
-                ];
+          //header("Content-Type: text/plain");
 
-
+          //echo $base64Binary;die;
+          //base64_encode($base64Binary);die;
+          //return [ "stat" => 1, "base64Binary" => 'data:application/pdf;base64,'.base64_encode($base64Binary) ];
     } catch (Exception $e) {
+      base64save($e->getMessage(),__DIR__. "/processing/error-getMessage.txt");
         echo echo_end_die(['stat'=>0,'msg'=>'Ошибка Soap Service',
-          //'getLastRequest()'=> mysql_real_escape_string($soap_service->__getLastRequest()),
-          //'getMessage()'=> mysql_real_escape_string($e->getMessage()),
+          //'getLastRequest()'=> $soap_service->__getLastRequest(),
+          //'getMessage()' => $e->getMessage(),
           'ALL_ERROR'=> $e
         ]);
+        die;
         //die; throw_err('Err:__getLastResponse()=>'.$soap_service->__getLastResponse().'   Err:__getLastRequest()=>'.$soap_service->__getLastRequest().'; getMessage()=>'.$e->getMessage().'; ALL_ERROR=>'.$e);
     }
  }
+
+ function get_blank_pdf_base64 ($x, $y) {
+  ob_start();ob_end_clean();
+
+  if(isset($_SESSION["blank_pdf"])) return $_SESSION["blank_pdf"];
+  /*$image = new Imagick();
+  $image->newImage($x, $y, 'transparent'/);// new ImagickPixel('white');
+  $image->setImageFormat('pdf');
+  $blob = $image->getImageBlob();*/
+  $s = DIRECTORY_SEPARATOR;
+  $name = com_create_guid();
+  $path_to_file = trim(sys_get_temp_dir(), $s) . $s . ltrim($name, $s).'.pdf';
+  exec('convert -size '.($x+2).'x'.($y+2)." xc:white $path_to_file"); // создаем БЕЛЫЙ PDF  189x100
+  if(!file_exists($path_to_file)) return false;
+  $blob = file_get_contents($path_to_file);
+  $base64 = base64_encode($blob);
+  $_SESSION['blank_pdf'] = $base64;
+  return $base64; //file_get_contents($path_stamp_white_template_pdf, 1)    // читаем его из диска;
+}
+
+function pdf_to_jpg_first_page($path) {
+  $path = realpath($path);
+  $tmp = getenv('TMP').'\\'.uniqid().'.jpg';
+
+//  $path = __DIR__.'/processing/example.pdf';
+//  $tmp = __DIR__.'/processing/tmp.jpg';
+  $cmd = convert . " ".$path."[0] $tmp";
+  exec( $cmd, $command_output, $return_val );
+  if($return_val) return false; //var_dump($command_output); return  'error exec. CMD='.$cmd; die;
+  $blob = file_get_contents($tmp);
+  $base64 = base64_encode($blob);
+  unlink($tmp);
+  return $base64; //
+}
+
+
+function binary_pdf_to_png ($binary) {
+  $base64Binary = 'data:application/pdf;base64,'.base64_encode($binary); //для теста
+  $tmp = getenv('TMP').'\\'.uniqid().'.pdf';
+  $png = $tmp.'.png';
+  base64save($binary, $tmp); //base64 .pdf -> .pdf
+  $cmd = "convert -density 200 -alpha remove -alpha off +antialias -transparent white $tmp -strip -transparent white $png  2>&1";
+  exec($cmd, $output, $return_val);
+  if($return_val) { return false; }
+  $blob = file_get_contents($png, 1);
+  $base64 = base64_encode($blob);
+  unlink($tmp);
+  ob_end_clean();
+  return $base64;
+}
+
+
+function binary_pdf_first_page_to_jpg ($binary) {
+  $base64Binary = 'data:application/pdf;base64,'.base64_encode($binary); //для теста
+  $tmp = getenv('TMP').'\\'.uniqid().'.pdf';
+  base64save($binary, $tmp); //base64 .pdf -> .pdf
+  $base64 = pdf_to_jpg_first_page($tmp);
+  unlink($tmp);
+  return $base64;
+}
+
 ?>
