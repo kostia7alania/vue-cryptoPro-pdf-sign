@@ -10,7 +10,9 @@ import getters from './getters.js';
 import actions from './actions.js';
 import state from './state.js';
 
+import createPersistedState from 'vuex-persistedstate'
 window.store = new Vuex.Store({
+  //plugins: [createPersistedState()],
   state,
   getters,
   mutations,
