@@ -56,6 +56,7 @@ const actions = { // запросы к серверу:
         commit('SET_CERT_LIST', list);
       })
       .catch(e => {
+        alert(e.message)
         console.warn("appGetCertList - CATCH 188", e);
         commit('SET_CERT_LIST', []);
       })
@@ -165,16 +166,26 @@ const actions = { // запросы к серверу:
 
 
   PODPISAT_2_PREVIEW({ state, commit, dispatch, getters }, data) {
+    let iteration = 1;
     const p1 = dispatch('GET_FIRST_PAGE', data)
-    const p2 = dispatch('GET_STAMP_IMG', data)
+    const p2 = dispatch('GET_STAMP_IMG', { data, iteration })
     Promise.all([p1, p2]).then(v => EventBus.$emit("loading", ""))
   },
 
-  GET_STAMP_IMG({ state, commit, dispatch, getters }, data) {
+  GET_STAMP_IMG({ state, commit, dispatch, getters }, { data, iteration }) {
     let url = `${state.BACKEND_URL}?action=sign&stage=2&stampGen=1&get-stamp-img&id=${getters.DOC_ID}`;
     return axios_instance
       .post(url, data)
       .then(res => {
+        if (typeof res.data == 'string' && res.data.length > 20) {
+          commit('SET_STAMP_IMG', res.data) //png base64
+          return { name: 'GET_STAMP_IMG', status: 'success', payload: res.data }
+        }
+        debugger;
+        if (typeof res == 'object' && !res.stat) {
+          if (iteration == 1) { return dispatch('GET_STAMP_IMG', { data, iteration: iteration + 1 }) }
+          throw res.msg || 'Ошибка Soap Service'
+        }
         if (!res.data || res.data.length < 10) throw 'Ответ сервера невалидный'
         /*
         if (res.headers["content-type"].match("application/pdf"))
@@ -198,22 +209,22 @@ const actions = { // запросы к серверу:
           EventBus.$emit("echo_end_die", { msg });
         }
         */
-        commit('SET_STAMP_IMG', res.data) //png base64
-        return { name: 'GET_STAMP_IMG', status: 'success', payload: res.data }
+
       })
       .catch(err => {
         const msg = parse_catch(err, 'Ошибка во второй стадии подписания')
         if (msg == state.LAST_ERROR) EventBus.$emit("echo_end_die", { msg });
-        else {
-          commit('SET_LAST_ERROR', msg)
-          dispatch('PODPISAT_2_PREVIEW')
-        }
+        else commit('SET_LAST_ERROR', msg)
+        if (iteration == 1) { return dispatch('GET_STAMP_IMG', { data, iteration: iteration + 1 }) }
         return { name: 'GET_STAMP_IMG', status: 'catch', payload: err }
       })
   },
 
   GET_FIRST_PAGE({ state, commit, dispatch, getters }, data) {
+    commit('SET_DOC_PREV', null)
+    debugger
     const url = `${state.BACKEND_URL}?action=sign&stage=2&stampGen=1&get-first-page&id=${getters.DOC_ID}`;
+    //commit('SET_DOC_PREV', url)return;//STOP ! Пойдем другим путем! Скормим его путем,чтобы сам получил данные!
     return axios_instance
       .post(url, data)
       .then(res => {
@@ -336,14 +347,17 @@ function parse_soap_error(d) {
     res.msg ||
     "Ошибка при разборе штампа предпросмотра";
 }
+
 function parse_catch(err, place) {
   let ret;
+  if (typeof err !== 'object') return err
   const data = err.response && err.response && err.response.data
   if (data) {
     const div = document.createElement('div');
     div.innerHTML = data
     ret = div.querySelector('.error').innerText
-  } ret = 'message' in err && err.message || 'Ошибка: ' + err
+  }
+  ret = 'message' in err && err.message || 'Ошибка: ' + err
   console.warn(`[${place}][parse_catch] ret => `, ret)
   return ret
 }
