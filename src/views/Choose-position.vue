@@ -3,7 +3,10 @@
           <div class="pechat">
             <h3>Положение видимой печати:</h3>
 
-            <img width="595" height="842" :src="doc_prev" id="watermarked">
+            <!--
+              <img width="595" height="842" v-if="doc_prev" :src="doc_prev" id="watermarked">
+            -->
+              <div v-html="doc_prev"></div>
 
             <div class="text-center pt-20">
               <p>Подтвердить выставленное положение видимой печати</p>
@@ -14,28 +17,38 @@
 </template>
 
 <script>
+import { setInterval, clearInterval } from "timers";
 export default {
   name: "choose-position",
   data() {
-    return {};
+    return {
+      interval: null
+    };
   },
   mounted() {
-    this.$nextTick(() => this.init_watermark());
+    //this.$nextTick(() => this.init_watermark());
+    this.interval = setInterval(this.init_watermark, 1000);
   },
   computed: {
     doc_prev() {
-      return "data:image/jpg;base64," + this.$store.state.DOC_PREV;
+      //"data:image/jpg;base64," +
+      return this.$store.state.DOC_PREV;
     },
     STAMP_IMG() {
-      return "data:image/png;base64," + this.$store.state.STAMP_IMG;
+      return this.$store.state.STAMP_IMG;
       //return this.$store.state.STAMP_IMG; //http://192.168.201.118:8080/api?action=sign&get-stamp-jquery&stage
     }
+  },
+  destroyed() {
+    clearInterval(this.interval);
   },
   methods: {
     podpisat() {
       this.$store.dispatch("GET_PREVIEW", "final");
     },
     init_watermark() {
+      if (!this.STAMP_IMG || !$("#watermarked").length) return;
+      if ($(".watermark").length) return clearInterval(this.interval);
       const that = this;
       const options = {
         //надо отобразить рисунок до нанесения печати (а то JQUERY не пашет!)
@@ -54,7 +67,9 @@ export default {
         }
       };
       const PECHAT_POS = this.$store.state.PECHAT_POS;
+
       $("#watermarked").Watermarker({ ...options, ...PECHAT_POS });
+      clearInterval(this.interval);
     }
   }
 };
