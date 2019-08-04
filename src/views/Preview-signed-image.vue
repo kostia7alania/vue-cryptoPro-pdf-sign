@@ -8,7 +8,8 @@
               target="_blank"
             >Изменить положение подписи</button>
             <br>
-            <img :src="base64Binary" width="595" height="842">
+            <!--<img :src="base64Binary" width="595" height="842">-->
+            <div v-html="base64Binary"></div>
             <br>
             <button @click="openBase64" class="btn-3d-1" width="auto" target="_blank" >Открыть подписанный документ</button>
           </div>
@@ -32,7 +33,9 @@ export default {
         w.document.body.appendChild(iframe).src =
           /*location.host +
           BACKEND_URL +*/
-          "http://192.168.201.118:8080/api?action=sign&stage&stampGen=0&get-signed-doc";
+          //"http://192.168.201.118:8080/api?action=sign&stage&stampGen=0&get-signed-doc";
+          //${this.$store.state.BACKEND_URL}
+          `http://localhost:8080/api?action=sign&stage&stampGen=0&get-signed-doc&id=${this.$store.getters.DOC_ID}`;
       }, 0);
     },
     clear_base64Binary() {
@@ -41,7 +44,8 @@ export default {
   },
   computed: {
     base64Binary() {
-      return "data:image/png;base64," + this.$store.state.BASE64_BINARY;
+      //"data:image/png;base64," +
+      return this.$store.state.BASE64_BINARY;
     }
   }
 };
