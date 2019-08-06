@@ -1,19 +1,19 @@
 module.exports = {
   lintOnSave: process.env.NODE_ENV !== "production",
-      // proxy API requests to Valet during development
-      devServer: {
-        //proxy: 'http://localhost:8000'//с пушером траблы вызывает;
-        proxy: {
-            '^/api': {
-              target: 'https://srs.marinet.ru/testk/registrations/rightSailM/back',
-              ws: true,
-              changeOrigin: true,
-              secure: false,
-            }
-          }
-    },
+  // proxy API requests to Valet during development
+  devServer: {
+    //proxy: 'http://localhost:8000'//с пушером траблы вызывает;
+    proxy: {
+      '^/api': {
+        target: 'https://srs.marinet.ru/And2/registrations/rightSailM/back',
+        ws: true,
+        changeOrigin: true,
+        secure: false,
+      }
+    }
+  },
   publicPath: process.env.NODE_ENV === 'production' ?
-  'testk/js/vue-cryptoPro-pdf-sign/dist/':'',
+    'And2/js/vue-cryptoPro-pdf-sign/dist/' : '',
   assetsDir: "./", //По умолчанию: '' - Каталог (относительно outputDir) для хранения сгенерированных статических ресурсов (js, css, img, fonts).
   outputDir: "dist",
   indexPath: "index.html", //умолч -'index.html'-относительно outputDir
