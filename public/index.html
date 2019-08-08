@@ -8,19 +8,26 @@
     <title>vue-cryptopro-pdf-sign</title>
   </head>
   <body>
-    <noscript>
-      <strong>We're sorry but vue-cryptopro-pdf-sign doesn't work properly without JavaScript enabled. Please enable it to continue.</strong>
-    </noscript>
-    <div id="app"></div>
-    <!-- built files will be auto injected -->
+    <noscript> <strong>We're sorry but vue-cryptopro-pdf-sign doesn't work properly without JavaScript enabled. Please enable it to continue.</strong> </noscript>
+    <div id="app1"></div>
+    <div id="app2"></div>
+    <div id="app3"></div>
+    <script src="https://www.cryptopro.ru/sites/default/files/products/cades/cadesplugin_api.js"></script>
 
     <script>
-
-      window.onload = function name(params) {
-        var params =  new URLSearchParams(window.location.search)
-        var id  = params.get('id');
-        init_Vue(id/*по умолчанию -берет из url=> ?id */,'https://srs.marinet.ru/testk/js/vue-cryptoPro-pdf-sign/backend/api_dss.php','/img/');
+      window.onload = params => {
+        //'https://srs.marinet.ru/testk/registrations/rightSailM/back'
+        //'https://srs.marinet.ru/testk/js/vue-cryptoPro-pdf-sign/backend/api_dss.php'
+        var props1 = {
+          el: '#app1',
+          backend_url : './api',
+          img_url: '../'// '/img/'
+        };
+        init_Vue(props1);
       }
+      //props2 = {  selector: '#app2',};
+      //props3 = {  selector: '#app3', };
+      //init_Vue(props2);goNewVue(props3);
 
     </script>
   </body>

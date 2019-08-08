@@ -1,5 +1,5 @@
 ﻿<?php   //echo   exec('whoami');
-ini_set('error_reporting', E_ALL); ini_set('display_errors', 1); ini_set('display_startup_errors', 1);
+//ini_set('error_reporting', E_ALL); ini_set('display_errors', 1); ini_set('display_startup_errors', 1);
 header('Access-Control-Allow-Methods: POST, GET, DELETE, PUT, PATCH, OPTIONS');
 header('Access-Control-Allow-Origin: *');
 
@@ -9,12 +9,16 @@ if ($_SERVER['REQUEST_METHOD'] === 'OPTIONS') {
         header('Content-Length: 0');
         header('Content-Type: text/plain');
         die();
-    }
+}
+ob_clean();
 
-//header('Content-Type: application/x-www-form-urlencoded');
- header("Content-type: text/xml;charset=window-1251");
- header('Content-Type:text/html;charset=UTF-8');
-
+/*
+  header('Content-type: image/png');
+  $image = new Imagick(__DIR__.'/processing/gerb_RF.png');
+  $image->thumbnailImage(100, 0); // Если в качестве ширины или высоты передан 0,то сохраняется соотношение сторон
+  echo $image;
+  die;
+*/
 header('Content-Type: application/json;charset=utf-8');
 mb_internal_encoding('UTF-8');
 mb_http_output('UTF-8');
@@ -60,7 +64,7 @@ if(isset($_GET['ssid'])) {   session_id($_GET['ssid']);   $ssid = $_GET['ssid'];
 if(!isset($_SESSION) ) {      session_start();  $ssid = session_id(); }
 if(!isset($ssid))  $ssid = session_id();
 
-if(isset($_POST['cert_base64'])){
+if(isset($_POST['cert_base64'])) {
                 $_SESSION['cert_base64'] = $_POST['cert_base64'];
                 $rawCertificate = $_POST['cert_base64'];
 } elseif (isset($_SESSION['cert_base64'])) {
@@ -81,32 +85,46 @@ $fixY=99;   //100
 
 //$path = 'C:/inetpub/wwwroot/wp_simple/cryptopro-pdf-sign-in-browser-with-vuejs/processing';
 $path = __DIR__.'./processing';
-$example_doc = "$path/example.pdf";
 
-if($_GET['stampGen']==1) { //PREVIEW doc SIGN:
+$stampName = 'stamp_white_templ';
+$path_stamp_white_template     = __DIR__."/processing/$stampName.pdf"; //белый шаблон куда генерить;
+$path_stamp_white_template_png = __DIR__."/processing/$stampName.png"; //белый шаблон куда генерить; Это видимая перетаскиваемая печать (картинка)
+
+$path_test_doc = __DIR__."/processing/example.pdf";
+
+$doc_real       = __DIR__."/processing/example.pdf";
+
+$doc_name =       "example";
+$doc_stage2     = __DIR__."/processing/$doc_name.pdf";
+
+if($_GET['stampGen']==1) { //!!!!!!!!!!!!! ПРЕДПРОСМОТР !!!!!!!!!!!!!!!!!!!!!!!!  PREVIEW doc SIGN:
     $RectLowerLeftX = 1;
     $RectLowerLeftY = 1;
-
     $template = getStamp ($path, $RectLowerLeftX, $RectLowerLeftY, $fixX, $fixY);
     if( $_GET['action'] == 'sign' ) {
-            $doc_name = "stamp_white_templ";
             if( $_GET['stage'] == 1 ) {
+              exec('convert -size '.($fixX+2).'x'.($fixY+2)." xc:white $path_stamp_white_template"); // создаем БЕЛЫЙ PDF  189x100
 
-                exec('convert -size '.($fixX+2).'x'.($fixY+2)." xc:white $path/$doc_name.pdf"); // создаем белый PDF  189x100
-                $document = base64_encode(file_get_contents("$path/$doc_name.pdf", 1));         // читаем его из диска;
-                stage1($ssid, $url, $rawCertificate, $template, $classmap, $document);//<--die            // <------------------- подписываем его <-------------------
+
+              $document__white = base64_encode(file_get_contents($path_test_doc, 1));         // читаем его из диска;
+              stage1($ssid, $url, $rawCertificate, $template, $classmap, $document__white);//<--die            // <------------------- подписываем БЕЛЫЙ PDF <-------------------
             } elseif ( $_GET['stage'] == 2 ) {
-                $document = base64_encode(file_get_contents("$path/$doc_name.pdf", 1));
-                $a = stage2($url, $rawCertificate, $template, $classmap, $document);
-                    $document = $a["base64Binary"];
-                    $docName_stage2 = $doc_name."_stage2";
-                    base64save($document, "$path/$docName_stage2.pdf"); //base64  .pdf  -> .pdf
-                    //pdf -> transparent PNG:
-                    exec("convert -density 200 -alpha remove -alpha off +antialias -transparent white $path/$docName_stage2.pdf -transparent white $path/$docName_stage2.png");
-                    $base64Binary = base64_encode(file_get_contents("$path/$docName_stage2.png"));
 
-                    exec("convert -density 200 $example_doc"."[0] $example_doc.jpg");
-                    $doc_prev = base64_encode(file_get_contents("$example_doc.jpg"));
+              $document_real = base64_encode(file_get_contents($doc_real, 1)); //
+              $res = stage2($url, $rawCertificate, $template, $classmap, $document_real);
+
+                    base64save($res["base64Binary"], $doc_stage2); //base64 .pdf -> .pdf
+                    // делаем ИЗ pdf -> прозрачный PNG:
+                    $cmd = "convert -density 200 -alpha remove -alpha off +antialias -transparent white $path_stamp_white_template -transparent white $path_stamp_white_template_png  2>&1";
+                    exec($cmd , $output, $return_var);
+                    print_r($return_var);die;
+                    $base64Binary = base64_encode(file_get_contents($path_stamp_white_template_png));// берем прозрачный печать
+
+                    $cmd2 = "convert -density 200 $path_test_doc"."[0] $path_test_doc.jpg";
+                    //echo $cmd.'\n\n\n';echo $cmd2; die;
+                    exec($cmd2); //берем 1-ую страницу доки
+
+                    $doc_prev = base64_encode(file_get_contents("$path_test_doc.jpg"));
 
                     echo_end_die([
                         "stat"       =>  1,
@@ -119,13 +137,13 @@ if($_GET['stampGen']==1) { //PREVIEW doc SIGN:
     }    else    {  echo_end_die(["stat"=>0,"msg"=> 'Unknown stampGen-action']); }
 
 
-} else {//финальная стадия проставления печати
+} else {// !!!!! ПОДПИСЫВАНИЕ !!!!!!!!!!!!! финальная стадия проставления печати
 
     $RectLowerLeftX = $_POST['pechat_pos']['x'];//правый край max -> 595 //дроби не любит ПДФ !онли целое!//json_decode($_POST['pechat_pos'])->x;
     $RectLowerLeftY = $_POST['pechat_pos']['y'];//верхний край max-> 842 //дроби не любит ПДФ  !онли целое!//json_decode($_POST['pechat_pos'])->y;
 
     $template = getStamp ($path, $RectLowerLeftX, $RectLowerLeftY, $fixX, $fixY);
-    $document = base64_encode ( file_get_contents($example_doc, 1) ); // <-- SIGN;
+    $document = base64_encode ( file_get_contents($doc_real, 1) ); // <-- SIGN;
     if($_GET['action']=='sign')  {
         if(    $_GET['stage']==1){
             stage1($ssid, $url, $rawCertificate, $template, $classmap, $document);//<--тут die; // <------------------- подписываем его <-------------------

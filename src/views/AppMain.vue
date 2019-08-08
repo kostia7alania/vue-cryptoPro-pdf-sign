@@ -4,91 +4,61 @@
     <div id="content-header">
       <h1 class="my-logo">Сервис электронной подписи ИЦГПК </h1>
       <vue-support  :img_url="img_url"/>
-
     </div>
 
 
+      <Steps :step="step"/>
 
       <div class="main-content">
+        <Spinner v-if="loading_text" :loading_text="loading_text"/>
 
-      <div class="text-center" v-show="loading_text">
-        <div>
-          <img src="../img/animaatjes-rubiks-cube.gif">
-        </div>
-        <div>{{loading_text}}</div>
-      </div>
-
-      <div v-show="!loading_text">
-        <div class="text-center">
-          <app-get-cert-list
-            :img_url="img_url"
-            v-show="!doc_prev && !base64Binary"
-            @sel_cert="sel_cert_handler"
-            @select-position="selectPosition"
-            @loading="loading_handler"
-          />
-          <button v-show="doc_prev" class="btn-3d-1" @click="doc_prev=false">Выбрать другую подпись</button>
-        </div>
-
-        <transition name="slide-fade">
-          <div class="pechat" v-if="doc_prev && !base64Binary">
-            <h3>Положение видимой печати:</h3>
-
-            <img width="595" height="842" :src="doc_prev" id="watermarked">
-
-            <div class="text-center">
-              <p>Подтвердить выставленное положение видимой печати</p>
-              <button class="btn-3d-2" @click="podpisat(0)">Подписать</button>
-            </div>
+        <div v-else>
+          <div class="text-center">
+            <app-get-cert-list
+              :img_url="img_url"
+              v-show="!doc_prev && !base64Binary"
+              @sel_cert="sel_cert_handler"
+              @select-position="selectPosition"
+              @loading="loading_handler"
+            />
+            <button v-show="doc_prev" class="btn-3d-1" @click="doc_prev=false">Выбрать другую подпись</button>
           </div>
-        </transition>
 
-        <transition name="slide-fade">
-          <div class="text-center" v-if="base64Binary">
-            <button
-              @click="base64Binary=false"
-              class="btn-3d-1"
-              width="auto"
-              target="_blank"
-            >Подписать еще один документ</button>
-            <br>
-            <br>
-            <iframe :src="base64Binary" width="790px" height="1290px" frameborder="0"></iframe>
-            <br>
-            <br>
-            <button @click="openBase64" class="btn-3d-1" width="auto" target="_blank" >Открыть подписанный документ</button>
-          </div>
-        </transition>
-        <!--<p class="text-center" v-if="stat==1 || (stat == 0 && stat !== '') ">
-              Статус: <span :class="{green:stat==1, red:stat!=1}">{{stat==1?'Успех':'Ошибка'}}</span>
-            </p>
-            <p class="text-center"  v-if="msg">Сообщение сервера: {{msg}}</p>-->
-      </div>
+          <choose-position v-if="doc_prev && !base64Binary" :doc_prev="doc_prev" @podpisat="podpisat($event)" />
+
+          <Preview-signed v-if="base64Binary" :base64Binary="base64Binary" @cliar="base64Binary=false"/>
+
+        </div>
     </div>
   </div>
 </template>
 
 <script>
 import AppGetCertList from "./AppGetCertList.vue";
-import axios from "axios";
+
 import { CryptoPro } from "ruscryptojs";
-import vue_support from "./VueSupport";
+
+import '../libs/jquery-1.4.2.min.js'
+import '../libs/jquery-ui-1.8.6.custom.min.js'
+import '../libs/jquery-watermarker-0.3.js' //пародию начали пилить на ету тему -> https://codepen.io/anon/pen/YMRLdp
 
 
 export default {
   components: {
     "app-get-cert-list": AppGetCertList,
-    "vue-support": vue_support
+    "vue-support":  () => import('./VueSupport'),
+    "choose-position": () => import('./Choose-position'),
+    "Spinner": ()=> import('./Spinner'),
+    "Steps": ()=> import('./Steps'),
+    "Preview-signed": ()=> import('./Preview-signed')
   },
   name:"app-main",
-  props: ["id", "backend_url", "img_url"],
+  props: ["backend_url", "img_url"],
   data() {
     return {
-      loading_text: "",
+      loading_text: null,
       doc_prev: "", //"http://www.edou.ru/upload/learning/3/res26/AU0gg.XoPWc.Image19.jpg",
       stamp_img: "", //"http://stamp-pro.ru/assets/cache_image/products/161/variant-i1_280x280_5db.png",
-      // url:        'https://localhost/wp_simple/cryptopro-pdf-sign-in-browser-with-vuejs/api_dss.php',
-      //url:        '../backend/api_dss.php',
       HashValue: "",
       cacheObjectId: "",
       createdSign: "",
@@ -112,17 +82,22 @@ export default {
 
 
 
-    window.axios_instance = axios.create({
-      headers: {
-        crossDomain: true,
-        "Access-Control-Allow-Origin": "*",
-        Accept: "application/json",
-        "Content-Type": "application/json;charset=UTF-8",
-        responseType: "json"
-      } /*,responseType: 'json'*/
-    });
+
+  },
+  computed: {
+  step () {
+    if(!this.doc_prev) return 0;
+    if(this.doc_prev && !this.base64Binary) return 1;
+    if(this.base64Binary) return 2;
 
 
+  },
+    id() {
+        var params =  new URLSearchParams(window.location.search)
+        var id  = params.get('id');
+        return id
+//      return document.location.search.replace('?','').split('&').reduce( (ac, next) => {const spl = next.split('='); ac[spl[0]] = spl[1]; return ac}, {}).id
+    }
   },
   methods: {
     sel_cert_handler(){
@@ -200,7 +175,6 @@ export default {
 
     },
     createSign(stamp_prev) {
-
       console.log("[createSign] [HashValue] => " + this.HashValue);
       const that = this;
       let Thumbprint = this.selected_sert.Thumbprint;
@@ -220,18 +194,12 @@ export default {
         const Thumbprint =  this.selected_sert.Thumbprint;
        /*window.oFnd = oFnd;
         window.cadesplugin = cadesplugin;*/
-     //   debugger
-
 				//oFnd.Find(cadesplugin.CAPICOM_CERTIFICATE_FIND_SUBJECT_NAME,'ФГБУ ""АМП ПРИМОРСКОГО КРАЯ И ВОСТОЧНОЙ АРКТИКИ""')
         oFnd.Find(cadesplugin.CAPICOM_CERTIFICATE_FIND_SHA1_HASH, Thumbprint)
 			.then(oCertificates => {
-        //debugger
 			oCertificates.Count
 			.then(count=>{
-				if(count==0) {alert("Нет сертификатов с таким именем!!!"); {
-            this.loading_text=''
-          throw 'Нет сертификатов с таким именем!';}
-        }
+				if(!count && (this.loading_text='') ) throw 'Нет сертификатов с таким именем!'
 				oCertificates.Item(1)
 					.then(oCertificate=>window.oCertificate=oCertificate)
               .then( () => step2(HashValue) ).catch(e=>console.log('5'))
@@ -293,12 +261,7 @@ function step2 (HashValue){
         selected_sert: this.selected_sert
       };
       this.loading_text = "загрузка .... 2/3";
-      let url = `${
-        this.backend_url
-      }?action=sign&stage=2&stampGen=${stamp_prev}&ssid=${this.ssid}&id=${this.id}`;
-
-
-
+      let url = `${this.backend_url}?action=sign&stage=2&stampGen=${stamp_prev}&ssid=${this.ssid}&id=${this.id}`;
 
 
       axios_instance
@@ -309,7 +272,7 @@ function step2 (HashValue){
           try { d = eval(`[${d}]`)[0]; }
           catch (err) { return this.echo_end_die({stat: 0, msg: "Ошибка при разборе ответа сервера во второй стадии", err }); }
 
-if(typeof d != 'object' || typeof d.stat == 'undefined' ) return this.echo_end_die({ stat: 0, msg: "Ошибка сервера во время второй стадии подписания!" })
+          if(typeof d != 'object' || typeof d.stat == 'undefined' ) return this.echo_end_die({ stat: 0, msg: "Ошибка сервера во время второй стадии подписания!" })
 
           if(!d.stat) {
             const err = d.ALL_ERROR && d.ALL_ERROR.detail && d.ALL_ERROR.detail.DssFault && d.ALL_ERROR.detail.DssFault.Message || res.msg || 'Ошибка при разборе штампа предпросмотра'
@@ -347,7 +310,7 @@ if(typeof d != 'object' || typeof d.stat == 'undefined' ) return this.echo_end_d
         .then(() => {
           if (stamp_prev == 1) {
             this.loading_text = ""; //надо отобразить рисунок до нанесения печати (а то JQUERY не пашет!)
-            let that = this;
+            const that = this;
             $("#watermarked").Watermarker({
               watermark_img: that.stamp_img,
               opacity: 1,
@@ -355,9 +318,7 @@ if(typeof d != 'object' || typeof d.stat == 'undefined' ) return this.echo_end_d
               y: 37,
               w: 236,
               h: 98,
-              onChange: function(e) {
-                that.previewPechat(e);
-              }.bind(that)
+              onChange: e => that.previewPechat(e)
             });
           } else this.doc_prev = false; // удаляем предпросмотр дока!
         })
@@ -369,13 +330,10 @@ if(typeof d != 'object' || typeof d.stat == 'undefined' ) return this.echo_end_d
     },
 
     echo_end_die({ stat, msg, err }) {
-
-
         const text = typeof err == 'object' && err.message && err.message || msg
-
         console.warn('echo_end_die=>',arguments);
         if(!stat) swal("Ошибка!!", { className: "red-bg", icon: "error", text });
-        if(stat==3) swal("Ошибка!!", { className: "red-bg", icon: "error", text });
+        else if(stat==3) swal("Ошибка!!", { className: "red-bg", icon: "error", text });
         this.stat = stat;
         this.msg = msg;
         this.loading_text = "";
@@ -399,11 +357,9 @@ function base64toHEX(base64) { var raw = atob(base64); var HEX = ''; for (let i 
 @import url(../styles/btn.scss);
 @import url(../styles/global.scss);
 
-.swal-overlay {
-  background-color: rgba(64, 95, 88, 0.45); /*rgba(43, 165, 137, 0.45);*/
+.swal-overlay { background-color: rgba(64, 95, 88, 0.45); /*rgba(43, 165, 137, 0.45);*/
 }
-.swal-modal {
-  /*background-color: rgba(63,255,106,0.69);*/
+.swal-modal { /*background-color: rgba(63,255,106,0.69);*/
   border: 3px solid white;
 }
 
@@ -415,9 +371,7 @@ function base64toHEX(base64) { var raw = atob(base64); var HEX = ''; for (let i 
   border: 1px solid #3e549a;
   text-shadow: 0px -1px 0px rgba(0, 0, 0, 0.3);
 }
-.swal-button:hover {
-  background-color: #1e2b55 !important;
-}
+.swal-button:hover { background-color: #1e2b55 !important; }
 .disabled {
   border: 1px solid #999999 !important;
   background-color: #cccccc !important;
@@ -430,33 +384,20 @@ function base64toHEX(base64) { var raw = atob(base64); var HEX = ''; for (let i 
   }
 }
 
-.text-center {
-  text-align: center;
-}
+.text-center { text-align: center; }
 button { cursor: pointer; }
-
-.red {
-  color: red;
-}
-.green {
-  color: green;
-}
+.red { color: red; }
+.green { color: green; }
 img.watermark {
   cursor: pointer;
   transition: 1s;
-  &:hover {
-    transform: scale(1.05);
-  }
+  &:hover { transform: scale(1.05); }
 }
 
 /* Анимации появления и исчезновения могут иметь */
 /* различные продолжительности и динамику.       */
-.slide-fade-enter-active {
-  transition: all 0.3s ease;
-}
-.slide-fade-leave-active {
-  transition: all 0.8s cubic-bezier(1, 0.5, 0.8, 1);
-}
+.slide-fade-enter-active { transition: all 0.3s ease; }
+.slide-fade-leave-active { transition: all 0.8s cubic-bezier(1, 0.5, 0.8, 1); }
 .slide-fade-enter, .slide-fade-leave-to
 /* .slide-fade-leave-active до версии 2.1.8 */ {
   transform: translateX(10px);
@@ -541,9 +482,8 @@ input {
     font-size: 11px;
   }
 }
-html {
-  min-width: 300px;
+
+.pt-20 {
+  padding-top:20px;
 }
-
-
 </style>

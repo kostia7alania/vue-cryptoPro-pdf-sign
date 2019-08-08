@@ -132,8 +132,12 @@ function parmGen($name, $val){
 
 function stage1($ssid, $url, $rawCertificate, $template, $classmap, $document){
 
-    if ( strlen($_POST['cert_base64']) > 30 && strlen($_POST['cert_base64']) < 4000) {
-        try {
+
+
+
+    (strlen($_POST['cert_base64']) < 30 || strlen($_POST['cert_base64']) > 4000) && throw_err('Невалидный формат сертификата!');
+
+        //try {
             $soap_service = new SoapClient( $url, array("classmap"=>$classmap,"trace" => true,"exceptions" => true) );  $soap_service->__setSoapHeaders();
             $res = new PreSignDocumentResponse();
             /*
@@ -141,6 +145,7 @@ function stage1($ssid, $url, $rawCertificate, $template, $classmap, $document){
                 $parm[] = new SoapVar('PDF',            XSD_STRING, null, null, 'signatureType',    $ns1 );
                 $parm[] = new SoapVar($rawCertificate,  XSD_STRING, null, null, 'rawCertificate',   $ns1 );
            */
+
 
             $parm   = [parmGen($document,'document')];
             $parm[] = parmGen('PDF','signatureType');
@@ -159,7 +164,11 @@ function stage1($ssid, $url, $rawCertificate, $template, $classmap, $document){
             $parmKeyVal[] = soapVarGen('PdfSignatureAppearance',$template);*/
 
             $ns1 = 'http://dss.cryptopro.ru/services/2016/01/';
-            $parm[] = new SoapVar($parmKeyVal, SOAP_ENC_OBJECT,  null, null, 'signatureParams' , $ns1);
+            $parm[] = new SoapVar($parmKeyVal, SOAP_ENC_OBJECT,  null, null, 'signatureParams', $ns1);
+
+/*           file_put_contents(__DIR__.'/processing/doc-base64!!!.txt', serialize($parm));*/
+
+
 
             $res = $soap_service->PreSignDocument( new SoapVar($parm, 301) );
 
@@ -176,19 +185,15 @@ function stage1($ssid, $url, $rawCertificate, $template, $classmap, $document){
                 "ssid"           =>  $ssid
             ]);
 
+            /*} catch (Exception $e) {
 
-        } catch (Exception $e) {
 
-          var_dump($e);die;
 
+          print_r($e->getMessage());die;
             echo json_encode(['stat'=>0,'msg'=>'Ошибка Soap Service','getLastRequest()'=>$soap_service->__getLastRequest(),'getMessage()'=>$e->getMessage(),'ALL_ERROR'=>$e,'addition'=>$soap_service]);
             die;
             //throw_err('ОШИБКА сопы:__getLastRequest()=>'.$soap_service->__getLastRequest().'getMessage()=>'.$e->getMessage().'; ALL_ERROR=>'.$e);
-        }
-    } else {
-        echo 'cert_base64->'.strlen($_POST['cert_base64']); //die;
-        throw_err('Сертификат не прошел проверку SVS!');
-    }
+        }*/
 }
 
 
@@ -198,6 +203,8 @@ function stage2($url, $rawCertificate, $template, $classmap, $document){
     $binary = base64_decode($string1);
     $hex = bin2hex($binary);
 ***/
+
+
     $signedHashValue = $_POST['HashValue'];
     $cacheObjectId   = $_POST['cacheObjectId'];
     $signatureValue  = $_POST['createdSign'];
@@ -216,19 +223,15 @@ function stage2($url, $rawCertificate, $template, $classmap, $document){
 
         $byte_array = pack('H*', $signatureValue);
 
-
-
         $signatureValue = base64_encode($byte_array);
         $parm[] = parmGen($signatureValue,'signatureValue');
-
         //echo $signatureValue;
-
         $parm[] = parmGen('PDF','signatureType');
 
         $parmKeyVal   = [soapVarGen('PDFFormat','CAdES')];
         $parmKeyVal[] = soapVarGen('TSPAddress','http://tsp.ncarf.ru/tsp/tsp.srf');
 
-          /*  $parmKeyVal[] = soapVarGen('PdfSignatureTemplateId',2);
+          /*$parmKeyVal[] = soapVarGen('PdfSignatureTemplateId',2);
             $parmKeyVal[] = soapVarGen('PdfSignatureAppearance',$template);*/
 
         $ns1 = 'http://dss.cryptopro.ru/services/2016/01/';
@@ -245,9 +248,8 @@ function stage2($url, $rawCertificate, $template, $classmap, $document){
 
 
         //echo json_encode(['stat'=>0,'msg'=>'Ошибка Soap Service','getLastRequest()'=>$soap_service->__getLastRequest()]);
-         /*echo $soap_service->__getLastRequest();
-         die;*/
-       // base64save($base64Binary, "./processing/sex.txt");
+        //echo $soap_service->__getLastRequest(); die;
+        // base64save($base64Binary, "./processing/sex.txt");
         return  [
                     "stat" => 1,
                     "base64Binary" => 'data:application/pdf;base64,'.base64_encode($base64Binary)
@@ -260,8 +262,7 @@ function stage2($url, $rawCertificate, $template, $classmap, $document){
           //'getMessage()'=> mysql_real_escape_string($e->getMessage()),
           'ALL_ERROR'=> $e
         ]);
-        die;
-        //throw_err('Err:__getLastResponse()=>'.$soap_service->__getLastResponse().'   Err:__getLastRequest()=>'.$soap_service->__getLastRequest().'; getMessage()=>'.$e->getMessage().'; ALL_ERROR=>'.$e);
+        //die; throw_err('Err:__getLastResponse()=>'.$soap_service->__getLastResponse().'   Err:__getLastRequest()=>'.$soap_service->__getLastRequest().'; getMessage()=>'.$e->getMessage().'; ALL_ERROR=>'.$e);
     }
  }
 ?>

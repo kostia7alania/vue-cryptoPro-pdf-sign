@@ -1,12 +1,17 @@
 module.exports = {
   lintOnSave: process.env.NODE_ENV !== "production",
-  devServer: {
-    overlay: {
-      warnings: false,
-      errors: true,
-      proxy: "http://localhost:3000/backend/index.php" //Это скажет серверу разработки проксировать любые неизвестные запросы (запросы, которые не соответствуют статическому файлу) на адрес http://localhost:4000.
-    }
-  },
+      // proxy API requests to Valet during development
+      devServer: {
+        //proxy: 'http://localhost:8000'//с пушером траблы вызывает;
+        proxy: {
+            '^/api': {
+              target: 'https://srs.marinet.ru/testk/registrations/rightSailM/back',
+              ws: true,
+              changeOrigin: true,
+              secure: false,
+            }
+          }
+    },
   publicPath: process.env.NODE_ENV === 'production' ?
   'testk/js/vue-cryptoPro-pdf-sign/dist/':'',
   assetsDir: "./", //По умолчанию: '' - Каталог (относительно outputDir) для хранения сгенерированных статических ресурсов (js, css, img, fonts).
