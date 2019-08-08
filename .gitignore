@@ -1,10 +1,16 @@
+*.mp4
+.mp4
+
 .DS_Store
 node_modules
-/dist
-
 # local env files
 .env.local
 .env.*.local
+
+#git filter-branch --force --index-filter 'git rm --cached --ignore-unmatch  *soap*' --prune-empty --tag-name-filter cat -- --all
+#git filter-branch --tree-filter 'ls -l backend/soap.php'
+
+#git filter-branch --tree-filter 'rm -f backend/soap.php'
 
 # Log files
 npm-debug.log*
@@ -19,3 +25,14 @@ yarn-error.log*
 *.njsproj
 *.sln
 *.sw*
+
+
+
+/dist
+*/video-config.php 
+*/video-config.php 
+/backend/video-config.php 
+/converter/converter-config.php
+composer.phar
+/vendor/
+

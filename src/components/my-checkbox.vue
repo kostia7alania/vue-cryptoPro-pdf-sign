@@ -17,7 +17,7 @@ export default {
     text: {default: ()=>""},
     status:{default: () => false},
   }, // text,value
-  name: "my-button",
+  name: "my-checkbox",
   data() {
     return {};
   },

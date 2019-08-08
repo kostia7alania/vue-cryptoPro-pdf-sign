@@ -1,91 +1,63 @@
 <template>
   <div @click="click_handler" @keydown.esc="closeModal" class="vueSupport">
-    <div class="get-help-row" @click="showModal = true"> 
-      <img src="../img/help-icon.png" alt="help-icon"> 
+    <div class="get-help-row" @click="showModal = true">
+      <img src="../img/help-icon.png" alt="help-icon">
       <span>Помощь</span>
     </div>
 
-    
-    <!-- используй компонент modal, чтобы спустить туда пропсы --> 
-    <modal v-show="showModal" @close="closeModal">    
-      
-      <div slot="header"> 
+
+    <!-- используй компонент modal, чтобы спустить туда пропсы -->
+    <app-modal v-show="showModal" @close="closeModal">
+
+      <div slot="header">
         <div v-if="helpStatus == 'main'"></div>
-        <my-button v-if="helpStatus == 'feedback'" class="back" @click="changeState('main')" text="<" />
+        <my-button :img_url="img_url" v-if="helpStatus == 'feedback'" class="back" @click="changeState('main')" text="<" />
         <div><strong>Помощь</strong></div>
-        <my-button class="close" @click="closeModal" text="x"/>
+        <my-button :img_url="img_url" class="close" @click="closeModal" text="x"/>
       </div>
- 
+
 
 
       <div slot="body">
- 
-        <div v-if="helpStatus == 'main'"> 
+
+        <div v-if="helpStatus == 'main'">
 
 
 
-            <div class="get-help-row" @click="goTour"> 
-              <img src="../img/help-icon.png" alt="help-icon"> 
+            <div class="get-help-row" @click="goTour">
+              <img src="../img/help-icon.png" alt="help-icon">
               <span class="link">Помощь с интерфейсом</span>
-            </div>            
-            
-            <div class="get-help-row" @click="changeState('feedback')"> 
-              <img src="../img/feedback.png" alt="help-icon"> 
+            </div>
+
+            <div class="get-help-row" @click="changeState('feedback')">
+              <img src="../img/feedback.png" alt="help-icon">
               <span class="link"  v-b-tooltip title="Отправить отчет об ошибке">Обратная связь</span>
             </div>
-            <div class="check"> 
-              <my-checkbox :checked="saveState" @click="saveStateChange" text="Запоминать состояние"/> 
+            <div class="check">
+              <my-checkbox :checked="saveState" @click="saveStateChange" text="Запоминать состояние"/>
             </div>
 
 
-        </div> 
-        <FeedBack :helpStatus="helpStatus" v-if="helpStatus == 'feedback'"/>
+        </div>
+        <FeedBack :img_url="img_url" :helpStatus="helpStatus" v-if="helpStatus == 'feedback'"/>
 
 
-      </div> 
-      
+      </div>
+
      <!--<template slot="footer"> <!--<button class="btn-3d-1" @click="showModal = false">Закрыть</button>-- >  </template>-->
-    </modal>
+    </app-modal>
 
   </div>
 </template>
 
 <script>
-
-let modal = {
-  template: `  <transition name="modal">
-    <div class="my-modal-mask">
-      <div class="my-modal-wrapper">
-        <div class="my-modal-container">
-
-          <div class="my-modal-header">
-            <slot name="header"> default header </slot>
-          </div>
-
-          <div class="my-modal-body">
-            <slot name="body"> default body </slot>
-            
-          </div>
-
-          <div class="modal-footer">
-            <slot name="footer"> 
-             ИЦГПК © {{new Date().getFullYear()}}
-             <!-- <button class="modal-default-button" @click="$emit('close')"> OK </button>-->
-            </slot>
-          </div>
-        </div>
-      </div>
-    </div>
-  </transition>`
-};
-
+import modal from './Modal'
 import myButton from '../components/my-button.vue';
-
 import FeedBack from "./FeedBack.vue";
 export default {
   name: 'vue-support',
-  components: { modal, FeedBack, myButton },
-  props: [],
+  components: { 'app-modal':modal, FeedBack, myButton },
+  props: ['img_url'],
   data() {
     return {
       rating: null,
@@ -94,10 +66,10 @@ export default {
     };
   },
   watch:{
-    
+
   },
   mounted() {
-// подписываемся на событие keydown
+    // подписываемся на событие keydown
     if (typeof document !== 'undefined') {
       document.body.addEventListener('keydown', this.handleTabKey)
     }
@@ -105,14 +77,13 @@ export default {
       this.$el.focus() // фокус переводим на окно, при монтировании
     }
 },
- destroyed () {
-// отписываемся
+ destroyed () { // отписываемся
     if (typeof document !== 'undefined') {
       document.body.removeEventListener('keydown', this.handleTabKey)
     }
-}, 
+},
   methods: {
-    saveStateChange(val){ 
+    saveStateChange(val) {
       if(!val || val == 'false'){ localStorage.clear(); }   //в момент убирания птички - удаляются все записи из локалСторага;
       this.saveToStoreAndLocalStorage('saveState', val);//пишем в локалстораг и в стор VUEx
     },
@@ -136,20 +107,20 @@ export default {
     },
     changeState(state){
       this.$store.commit('changeData', { prop: 'helpStatus', state: state } );
-    }, 
+    },
     handleTabKey(e) { console.log('handleTabKey(e)=>>>',e);
        if (e.keyCode === 9 && this.modals.length) {
          e.preventDefault() // если есть окна, глушим Tab/Shift-Tab
-       } // пока полностью отключаю Tab. Надо подумать, как лучше его глушить только вне активного окна. 
+       } // пока полностью отключаю Tab. Надо подумать, как лучше его глушить только вне активного окна.
     },
-      click_handler(e){ 
+      click_handler(e){
           if(e.path[0].classList.value == 'my-modal-wrapper') { console.log('клик во враппер модального!');
               this.closeModal();
           }
       }
   }
 };
-</script> 
+</script>
 
 <style scoped lang="scss">
 .check { padding-top:10px; }
@@ -159,21 +130,21 @@ export default {
 }
 </style>
 
-<style lang="scss"> 
+<style lang="scss">
 
 .back {
   font-size:30px;
 }
- 
+
 
 .vueSupport{ display: flex; }
 
 .get-help-row {
   display: flex;
   flex-direction: column;
-  transition: .4s; 
+  transition: .4s;
   align-items: center;
-  cursor: pointer; 
+  cursor: pointer;
   padding: 7px 19px;
   /*border-radius: 2px;*/
   text-shadow: 0px -1px 0px rgba(0, 0, 0, 0.3);
@@ -181,7 +152,7 @@ export default {
   &:hover {
     background-color: #264b6c30;
     transform: scale(1.1);
-  } 
+  }
   img {
     width: 21px;
   }
@@ -204,11 +175,11 @@ export default {
   vertical-align: middle;
 }
 
-.my-modal-container {  
+.my-modal-container {
     display: flex;
     flex-direction: column;
     align-items: center;
-  
+
   width: 300px;
   margin: 0px auto;
   padding: 20px 20px 0px 20px;
@@ -228,7 +199,7 @@ export default {
     &>div {
       margin: 0;
       color: #42b983;
-      display: flex; 
+      display: flex;
       justify-content: space-between;
       align-items: center;
     }

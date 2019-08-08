@@ -7,7 +7,7 @@
     <textarea v-model="feedback_text"></textarea>
     <my-checkbox :checked="attachUserData" @click="attachUserData=$event" text="Прикрепить данные"/>
     <p>
-      <my-button @click="sendFeedBack" :status="helpStatus" cls="btn-send" text="Отправить"/>
+      <my-button :img_url="img_url" @click="sendFeedBack" :status="helpStatus" cls="btn-send" text="Отправить"/>
     </p>
 
 
@@ -19,6 +19,7 @@
 import { mapMutations } from 'vuex'; 
 import StarRating from "vue-star-rating";
 export default {
+  props:['img_url'],
   name: "FeedBack",
   components: { StarRating },
   data() {
