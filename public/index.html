@@ -15,8 +15,6 @@
       >
     </noscript>
     <div id="app1"></div>
-    <div id="app2"></div>
-    <div id="app3"></div>
     <script src="https://www.cryptopro.ru/sites/default/files/products/cades/cadesplugin_api.js"></script>
 
     <script>
@@ -25,7 +23,12 @@
         //'https://srs.marinet.ru/testk/js/vue-cryptoPro-pdf-sign/backend/api_dss.php'
         var props1 = {
           el: "#app1",
-          backend_url: "http://192.168.201.118:8080/api",
+          backend_url:
+            location.protocol +
+            "//" +
+            location.hostname +
+            location.pathname +
+            "/api", //"http://192.168.201.118:8080/api",
           img_url: "../" // '/img/'
         };
         init_Vue(props1);
