@@ -181,7 +181,6 @@ const actions = { // запросы к серверу:
           commit('SET_STAMP_IMG', res.data) //png base64
           return { name: 'GET_STAMP_IMG', status: 'success', payload: res.data }
         }
-        debugger;
         if (typeof res == 'object' && !res.stat) {
           if (iteration == 1) { return dispatch('GET_STAMP_IMG', { data, iteration: iteration + 1 }) }
           throw res.msg || 'Ошибка Soap Service'
@@ -222,7 +221,6 @@ const actions = { // запросы к серверу:
 
   GET_FIRST_PAGE({ state, commit, dispatch, getters }, data) {
     commit('SET_DOC_PREV', null)
-    debugger
     const url = `${state.BACKEND_URL}?action=sign&stage=2&stampGen=1&get-first-page&id=${getters.DOC_ID}`;
     //commit('SET_DOC_PREV', url)return;//STOP ! Пойдем другим путем! Скормим его путем,чтобы сам получил данные!
     return axios_instance
@@ -243,8 +241,13 @@ const actions = { // запросы к серверу:
     return axios_instance
       .post(url, data)
       .then(res => {
+
+        if (typeof res.data == 'object' && res.data.msg)
+          return EventBus.$emit("echo_end_die", { msg: res.data.msg });
+
         if (res.headers["content-type"].match("text/plain"))
           return commit('SET_BASE64_BINARY', res.data)
+
 
         if (typeof res.length > 10) console.log("stage2=>", res);
         let d = res.data;
@@ -273,7 +276,7 @@ const actions = { // запросы к серверу:
         if (msg == state.LAST_ERROR) EventBus.$emit("echo_end_die", { msg });
         else {
           commit('SET_LAST_ERROR', msg)
-          dispatch('PODPISAT_2_FINAL')
+          // dispatch('PODPISAT_2_FINAL')
         }
       })
       .finally(() => EventBus.$emit("loading", ""))
