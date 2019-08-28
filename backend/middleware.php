@@ -23,7 +23,10 @@ ob_clean();
 */
 header('Content-Type: application/json;charset=utf-8');mb_internal_encoding('UTF-8');mb_http_output('UTF-8');mb_http_input('UTF-8');mb_regex_encoding('UTF-8');
 $_POST = json_decode(file_get_contents("php://input"),true);
-require('api_dss_classes.php'); require('api_dss_functions.php');
+require('api_dss_classes.php');
+require('api_dss_functions.php');
+require('api_dss_yii.php');
+
 count($_GET)==0? echo_end_die(["stat"=>0,"msg"=>"Empty get params!"]):''; //отсекаем прямое открывание пхп-шки;
 //exec("convert -size 230x130 -background lightblue -font verdana.ttf -pointsize 25 \\\-gravity NorthWest caption:\"The quick red foxjumped over thelazy brown dog.\" \\\-flatten caption4.jpg");
 //$document = base64_encode(file_get_contents('./example.pdf', 1));     //$document 		=	'data:application/pdf;base64,JVBERi0xLjQKJcKlwrEKCgoKMSAwIG9iagogIDw8IC9UeXBlIC9DYXRhbG9nCiAgICAgL1BhZ2VzIDIgMCBSCiAgPj4KZW5kb2JqCgoyIDAgb2JqCiAgPDwgL1R5cGUgL1BhZ2VzCiAgICAgL0tpZHMgWzMgMCBSXQogICAgIC9Db3VudCAxCiAgICAgL01lZGlhQm94IFswIDAgMzAwIDE0NF0KICA+PgplbmRvYmoKCjMgMCBvYmoKICA8PCAgL1R5cGUgL1BhZ2UKICAgICAgL1BhcmVudCAyIDAgUgogICAgICAvUmVzb3VyY2VzCiAgICAgICA8PCAvRm9udAogICAgICAgICAgIDw8IC9GMQogICAgICAgICAgICAgICA8PCAvVHlwZSAvRm9udAogICAgICAgICAgICAgICAgICAvU3VidHlwZSAvVHlwZTEKICAgICAgICAgICAgICAgICAgL0Jhc2VGb250IC9UaW1lcy1Sb21hbgogICAgICAgICAgICAgICA+PgogICAgICAgICAgID4+CiAgICAgICA+PgogICAgICAvQ29udGVudHMgNCAwIFIKICA+PgplbmRvYmoKCjQgMCBvYmoKICA8PCAvTGVuZ3RoIDU1ID4+CnN0cmVhbQogIEJUCiAgICAvRjEgMTggVGYKICAgIDAgMCBUZAogICAgKEhlbGxvIFdvcmxkKSBUagogIEVUCmVuZHN0cmVhbQplbmRvYmoKCnhyZWYKMCA1CjAwMDAwMDAwMDAgNjU1MzUgZiAKMDAwMDAwMDAxOCAwMDAwMCBuIAowMDAwMDAwMDc3IDAwMDAwIG4gCjAwMDAwMDAxNzggMDAwMDAgbiAKMDAwMDAwMDQ1NyAwMDAwMCBuIAp0cmFpbGVyCiAgPDwgIC9Sb290IDEgMCBSCiAgICAgIC9TaXplIDUKICA+PgpzdGFydHhyZWYKNTY1CiUlRU9GCg==';
@@ -57,6 +60,7 @@ var percent = pt*100/12 ///8.(3)
 if(!isset($_GET['action']) && $_GET['action'] != 'sign')  echo_end_die(["stat"=>0,"msg"=> 'Unknown action']);
 if(!isset($_GET['stage']) && ($_GET['stage'] == 1 || $_GET['stage']==2)) echo_end_die(["stat"=>0,"msg"=> 'Stage required']);
 
+if(!isset($_GET['id'])) echo '{"stat": "0", "msg": "Document id required!"}';
 
 if(isset($_POST['cert_base64'])) $_SESSION['cert_base64'] = $_POST['cert_base64'];
 elseif (!isset($_SESSION['cert_base64'])) { echo json_encode ( ['stat'=>0, 'msg'=>'Cert not found!'] ); die;} // чувак вручную открыл ссылку
