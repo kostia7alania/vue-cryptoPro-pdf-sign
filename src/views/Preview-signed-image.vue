@@ -8,6 +8,7 @@
               target="_blank"
             >Изменить положение подписи</button>
             <br>
+            <h4 v-if="timmer > -1">Вы будете переадресованы из этого приложения через {{timmer}} сек.</h4>
             <!--<img :src="base64Binary" width="595" height="842">-->
             <div v-html="base64Binary"></div>
             <br>
@@ -20,6 +21,11 @@
 export default {
   name: "Preview-signed",
   mounted() {},
+  data() {
+    return {
+      timmer: 5
+    };
+  },
   methods: {
     openBase64() {
       const BACKEND_URL = this.$store.state.BACKEND_URL;
@@ -34,8 +40,7 @@ export default {
           /*location.host +
           BACKEND_URL +*/
           //"http://192.168.201.118:8080/api?action=sign&stage&stampGen=0&get-signed-doc";
-          //${this.$store.state.BACKEND_URL}
-          `http://localhost:8080/api?action=sign&stage&stampGen=0&get-signed-doc&id=${this.$store.getters.DOC_ID}`;
+          `${this.$store.state.BACKEND_URL}action=sign&stage&stampGen=0&get-signed-doc&id=${this.$store.getters.DOC_ID}`;
       }, 0);
     },
     clear_base64Binary() {
@@ -47,6 +52,10 @@ export default {
       //"data:image/png;base64," +
       return this.$store.state.BASE64_BINARY;
     }
+  },
+  mounted() {
+    setTimeout(() => history.back(), 5000);
+    setInterval(() => this.timmer--, 1000);
   }
 };
 </script>
