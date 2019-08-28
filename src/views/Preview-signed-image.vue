@@ -2,12 +2,12 @@
         <transition name="slide-fade">
           <div class="text-center">
             <button
+              v-if="false"
               @click="clear_base64Binary"
               class="btn-3d-1"
               width="auto"
               target="_blank"
             >Изменить положение подписи</button>
-            <br>
             <h4 v-if="timmer > -1">Вы будете переадресованы из этого приложения через {{timmer}} сек.</h4>
             <!--<img :src="base64Binary" width="595" height="842">-->
             <div v-html="base64Binary"></div>
