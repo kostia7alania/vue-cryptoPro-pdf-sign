@@ -241,7 +241,8 @@ const actions = { // запросы к серверу:
     return axios_instance
       .post(url, data)
       .then(res => {
-
+        if (res.status == 208)
+          return EventBus.$emit("echo_end_die", { msg: "Этот документ уже подписан!" });
         if (typeof res.data == 'object' && res.data.msg)
           return EventBus.$emit("echo_end_die", { msg: res.data.msg });
 
