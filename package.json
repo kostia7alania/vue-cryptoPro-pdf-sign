@@ -30,6 +30,7 @@
     "vuex-persistedstate": "^2.5.4"
   },
   "devDependencies": {
+    "@vue/cli": "*",
     "@vue/cli-plugin-babel": "^3.2.0",
     "@vue/cli-service": "^3.2.0",
     "babel-eslint": "^10.0.1",
@@ -37,7 +38,6 @@
     "eslint-plugin-vue": "^5.0.0-0",
     "node-sass": "^4.11.0",
     "sass-loader": "^7.1.0",
-    "vue-template-compiler": "^2.5.17",
-    "@vue/cli": "*"
+    "vue-template-compiler": "^2.5.17"
   }
 }

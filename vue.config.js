@@ -13,7 +13,7 @@ module.exports = {
     }
   },
   publicPath: process.env.NODE_ENV === 'production' ?
-    'And2/js/vue-cryptoPro-pdf-sign/dist/' : '',
+    'And2/vue-cryptoPro-pdf-sign/dist/' : '',
   assetsDir: "./", //По умолчанию: '' - Каталог (относительно outputDir) для хранения сгенерированных статических ресурсов (js, css, img, fonts).
   outputDir: "dist",
   indexPath: "index.html", //умолч -'index.html'-относительно outputDir

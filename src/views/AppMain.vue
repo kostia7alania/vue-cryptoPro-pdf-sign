@@ -39,7 +39,8 @@ import "../libs/jquery-1.4.2.min.js";
 import "../libs/jquery-ui-1.8.6.custom.min.js";
 import "../libs/jquery-watermarker-0.3.js"; //пародию начали пилить на ету тему -> https://codepen.io/anon/pen/YMRLdp
 
- import choosePosition from "./Choose-position"
+import choosePosition from "./Choose-position"
+
 export default {
   components: {
     "my-button-anim-left": () => import("../components/my-button-anim-left"),
