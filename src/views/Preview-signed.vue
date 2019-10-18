@@ -13,7 +13,7 @@
             <br>
             <canvas ref="the-canvas"></canvas>
             <br>
-            <button @click="openBase64" class="btn-3d-1" width="auto" target="_blank" >Открыть подписанный документ</button>
+           <!-- <button @click="openBase64" class="btn-3d-1" width="auto" target="_blank" >Открыть подписанный документ</button>-->
           </div>
         </transition>
 </template>

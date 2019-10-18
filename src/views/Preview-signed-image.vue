@@ -1,6 +1,6 @@
 <template>
         <transition name="slide-fade">
-          <div class="text-center">
+           <!--<div class="text-center">
             <button
               v-if="false"
               @click="clear_base64Binary"
@@ -9,17 +9,35 @@
               target="_blank"
             >Изменить положение подписи</button>
             <h4 v-if="timmer > -1">Вы будете переадресованы из этого приложения через {{timmer}} сек.</h4>
-            <!--<img :src="base64Binary" width="595" height="842">-->
+           <img :src="base64Binary" width="595" height="842"> 
             <div v-html="base64Binary"></div>
             <br>
-            <button @click="openBase64" class="btn-3d-1" width="auto" target="_blank" >Открыть подписанный документ</button>
+             <button @click="openBase64" class="btn-3d-1" width="auto" target="_blank" >Открыть подписанный документ</button>
+          </div>-->
+
+        <app-modal v-show="showModal" @close="goBack">
+
+          <div slot="header">
+            <div></div> 
+            <div><strong>Статус подписания</strong></div>
+            <my-button class="close" @click="goBack" text="x"/>
           </div>
+
+          <div slot="body">
+              <h3>Документ успешно подписан!</h3>
+              <button @click="goBack" class="sexy-button button-green"> OK </button>
+          </div>
+         </app-modal>
+
         </transition>
 </template>
 
 <script>
 export default {
-  name: "Preview-signed",
+  name: "Preview-signed--modal",
+  components: {
+    appModal: () => import('./Modal'), 
+  },
   mounted() {},
   data() {
     return {
@@ -27,6 +45,9 @@ export default {
     };
   },
   methods: {
+    goBack() {
+      history.back()
+    },
     openBase64() {
       const BACKEND_URL = this.$store.state.BACKEND_URL;
       var w = window.open("about:blank");
@@ -54,8 +75,8 @@ export default {
     }
   },
   mounted() {
-    setTimeout(() => history.back(), 5000);
-    setInterval(() => this.timmer--, 1000);
+    // setTimeout(this.goBack, 5000);
+    // setInterval(() => this.timmer--, 1000);
   }
 };
 </script>

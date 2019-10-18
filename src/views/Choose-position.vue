@@ -100,6 +100,8 @@ img#watermarked {
     border: 1px solid;
 }
 .confirm-section {
+    margin-top: 23px;
+    font-size: 1.4em;
   text-align: center;
   button {
     margin: auto;

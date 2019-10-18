@@ -50,13 +50,14 @@
   </div>
 </template>
 
-<script>
-import modal from "./Modal";
-import myButton from "../components/my-button.vue";
-import FeedBack from "./FeedBack.vue";
+<script>  
 export default {
   name: "vue-support",
-  components: { "app-modal": modal, FeedBack, myButton },
+  components: {
+    appModal: () => import('./Modal'), 
+    FeedBack: () => import('./FeedBack.vue'),
+    myButton : () => import('../components/my-button.vue')
+  },
   data() {
     return {
       rating: null,
