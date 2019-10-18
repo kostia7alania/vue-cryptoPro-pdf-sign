@@ -6,4 +6,4 @@ PdfSignatureAppearance = <ew0KICAgICAgICAiQ29udGVudCI6IFsNCiAgICAgICAgICAgIHsiVG
 IsDetached = <true>
 .
 Вложенное сообщение:
-Произошла ошибка при формировании CAdES подписи. Ошибка: [Объект или свойство не найдено]. Код: [0x80092004].
+Не удалось добавить подпись [CMSG_CTRL_ADD_CMS_SIGNER_INFO] в криптографическое сообщение. Ошибка: [Внутренняя ошибка]. Код: [0x80004005].

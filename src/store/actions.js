@@ -248,7 +248,10 @@ const actions = { // запросы к серверу:
           return EventBus.$emit("echo_end_die", { msg: res.data.msg });
 
         if (res.headers["content-type"].match("text/plain"))
-          return commit('SET_BASE64_BINARY', res.data)
+        
+          return EventBus.$emit('set_signed') 
+
+          // return commit('SET_BASE64_BINARY', res.data)//ВСЕ! больше превьюшки не хотим .!.
 
 
         if (typeof res.length > 10) console.log("stage2=>", res);

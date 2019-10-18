@@ -37,7 +37,7 @@
 
 <script>
 export default {
-  name: "Preview-signed--modal",
+  name: "success-signed",
   components: {
     appModal: () => import('./Modal'), 
   },

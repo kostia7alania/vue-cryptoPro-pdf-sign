@@ -147,7 +147,8 @@ function stage1($url, $rawCertificate, $template, $classmap, $document) {
                 $parm[] = new SoapVar('PDF',            XSD_STRING, null, null, 'signatureType',    $ns1 );
                 $parm[] = new SoapVar($rawCertificate,  XSD_STRING, null, null, 'rawCertificate',   $ns1 );
            */
-            $parm   = [parmGen($document,'document')];
+            $parm   = [];
+            $parm[] = parmGen($document,'document');
             $parm[] = parmGen('PDF','signatureType');
             $parm[] = parmGen($rawCertificate,'rawCertificate');
             $parmKeyVal   = [soapVarGen('PDFFormat','CAdES')];
@@ -183,7 +184,7 @@ function stage1($url, $rawCertificate, $template, $classmap, $document) {
 }
 
 
-function stage2($url, $rawCertificate, $template, $classmap, $document){
+function stage2($url, $rawCertificate, $template, $classmap, $document) {
 /***
     $string1 = 'V2h5IEkgY2FuJ3QgZG8gdGhpcyEhISEh'; // base64
     $binary = base64_decode($string1);
@@ -201,7 +202,11 @@ function stage2($url, $rawCertificate, $template, $classmap, $document){
                 $parm[] = new SoapVar($signatureValue, XSD_STRING, null, null, 'signatureValue', $ns1 );
                 $parm[] = new SoapVar('PDF',           XSD_STRING, null, null, 'signatureType', $ns1 );
             */
-        $parm   = [parmGen($cacheObjectId,'cacheObjectId')];
+        $parm   = [];
+        
+        $parm[] = parmGen($document,'document');
+
+        $parm[] = parmGen($cacheObjectId,'cacheObjectId');
         $parm[] = parmGen($signedHashValue,'signedHashValue');
 
         $byte_array = pack('H*', $signatureValue);
@@ -219,7 +224,9 @@ function stage2($url, $rawCertificate, $template, $classmap, $document){
         //*/
         $ns1 = 'http://dss.cryptopro.ru/services/2016/01/';
         $parm[] = new SoapVar($parmKeyVal, SOAP_ENC_OBJECT, null, null, 'signatureParams' , $ns1);
+ 
         $post = $soap_service->PostSignDocument( new SoapVar($parm, 301) );      //==тут ошибка вылетает!;(
+
         $base64Binary      = $post->PostSignDocumentResult;
         return  $base64Binary;
         //echo json_encode(['stat'=>0,'msg'=>'Ошибка Soap Service','getLastRequest()'=>$soap_service->__getLastRequest()]);
@@ -235,7 +242,7 @@ function stage2($url, $rawCertificate, $template, $classmap, $document){
           'stat'=>0,
           'msg'=>'Ошибка Soap Service',
           'getLastRequest()'=> $soap_service->__getLastRequest(),
-          //'getMessage()' => $e->getMessage(),
+          'getMessage()' => $e->getMessage(),
           //'ALL_ERROR'=> $e
         ]);
         die;

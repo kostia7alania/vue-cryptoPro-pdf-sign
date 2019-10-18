@@ -5,7 +5,8 @@
                             "soapaction" => "urn:xmethods-delayed-quotes#getQuote",  // HTTP-заголовок SOAPAction  для SOAP-метода 
                             "use"      => SOAP_ENCODED,"location" => $url]; 
 */ 
-$classmap = array('ArrayOfKeyValueOfSignatureParamsstring1Iy7z97I'=>'ArrayOfKeyValueOfSignatureParamsstring1Iy7z97I'
+$classmap = [ 
+    'ArrayOfKeyValueOfSignatureParamsstring1Iy7z97I'=>'ArrayOfKeyValueOfSignatureParamsstring1Iy7z97I'
     ,'KeyValueOfSignatureParamsstring1Iy7z97I'=>'KeyValueOfSignatureParamsstring1Iy7z97I'
     ,'DSSPreSignResponse'=>'DSSPreSignResponse'
     ,'DssFault'=>'DssFault'
@@ -34,7 +35,7 @@ $classmap = array('ArrayOfKeyValueOfSignatureParamsstring1Iy7z97I'=>'ArrayOfKeyV
     ,'GetPolicyRestResponse'=>'GetPolicyRestResponse',
     'VerifyCertificate'=>'VerifyCertificate',
     'VerifyCertificateResponse'=>'VerifyCertificateResponse'
-    );
+];
     class DSSPreSignResponse{ var $HashValue; /*base64Binary*/ var $СacheObjectId; /*string*/} 
     class PreSignDocumentResponse{ var $PreSignDocumentResult; /*DSSPreSignResponse*/ }
     class PostSignDocumentResponse{ var $PostSignDocumentResult;/*base64Binary*/  } 

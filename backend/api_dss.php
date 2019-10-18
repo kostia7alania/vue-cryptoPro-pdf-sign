@@ -18,9 +18,10 @@ if(isset ($_GET['get-signed-doc'])) {
   ob_start();ob_end_clean();
   header('Content-type: application/pdf');
   //header('Content-Disposition: attachment; filename="my.pdf"');
-  echo $_SESSION['signed-doc'];
+  echo $_SESSION['signed-doc']; // 4 tests -)
   die;
 }
+
 if(isset($_GET['actionSignGetBase64'])) { /// для тестов! https://srs.marinet.ru/And2/registrations/rightSailM/api?action=sign&stage=1&stampGen=1&id=66275F8A-FA4C-4FB4-8661-563885CEE8E0&actionSignGetBase64
   $pdf_base64 = getSigningDoc_Base64($_GET['id']);
   base64save(base64_decode($pdf_base64), $test_doc_pdf);
@@ -75,13 +76,19 @@ elseif($_GET['stage']==2) {
     $binary = stage2($url, $rawCertificate, $template, $classmap, $document); //<--die
     
     $signed_pdf_base64 = base64_encode($binary);
-    saveSigningDoc_Base64($signed_pdf_base64, $_GET['id']); //v СОХРАНЕНИЕ В YII БД
 
-    $_SESSION['signed-doc'] = $binary; //$base64Binary = 'data:application/pdf;base64,'.base64_encode($binary);
-    $jpg_base64 = binary_pdf_first_page_to_jpg($binary);
+// пока не пишем в БД:    saveSigningDoc_Base64($signed_pdf_base64, $_GET['id']); //v СОХРАНЕНИЕ В YII БД
+
+    $_SESSION['signed-doc'] = $binary; //$base64Binary = 'data:application/pdf;base64,'.base64_encode($binary); // <= 4 tests -)
+     
     ob_start();ob_end_clean();
+    json_encode(['stat'=>1, 'msg'=>'Success!' ]);
+    die(http_response_code(201)); // статус ОК (создан ресурс)
+    /*
+    $jpg_base64 = binary_pdf_first_page_to_jpg($binary);
     header('Content-Type: text/plain');
     echo "<img width=595 height=842 id=watermarked src='data:image/jpeg;base64,$jpg_base64'>";
     die;
+    */
 }
 ?>

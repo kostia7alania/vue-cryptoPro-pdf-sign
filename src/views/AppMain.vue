@@ -19,13 +19,9 @@
             />
           </div>
 
-          <choose-position
-            v-if="doc_prev && !base64Binary"
-          />
+          <choose-position v-if="doc_prev && !base64Binary"/>
 
-          <Preview-signed-image
-            v-if="base64Binary"
-          />
+          <success-signed v-if="signed" />
 
         </div>
     </section>
@@ -47,7 +43,7 @@ export default {
     "app-get-cert-list": () => import("./AppGetCertList"),
     "vue-support": () => import("./VueSupport"),
     choosePosition,
-    "Preview-signed-image": () => import("./Preview-signed-image"),
+    successSigned: () => import("./Success-signed"),
     Spinner: () => import("./Spinner"),
     Steps: () => import("./Steps")
   },
@@ -55,6 +51,7 @@ export default {
   props: [],
   data() {
     return {
+      signed: false,
       loading_text: null
       // doc_prev: "", //"http://www.edou.ru/upload/learning/3/res26/AU0gg.XoPWc.Image19.jpg",
       // stamp_img: "", //"http://stamp-pro.ru/assets/cache_image/products/161/variant-i1_280x280_5db.png",
@@ -76,6 +73,8 @@ export default {
       else swal(msg || Успешно, { className: "green-bg", icon: "info", text });
       throw msg;
     });
+    
+    EventBus.$on("set_signed", (stat = true) => this.signed = stat );
 
     window.cryptopro = new CryptoPro();
     cryptopro
