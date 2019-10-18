@@ -37,7 +37,6 @@
               location.hostname +
               location.pathname +
               "/api", // "https://srs.marinet.ru/And2/registrations/rightSailM/back",
-          img_url: "/js/vue-cryptoPro-pdf-sign/dist/img/" // '/img/'
         };
         init_Vue(props1);
       };

@@ -3,9 +3,7 @@ const state = {
   production: 1, // 0 тест, 1 - продакшн
   saveState: 0,//как изначально работать с сохранением состояния (после обновления стр);
   helpStatus: 'main', ////main,feedback,interactive
-  tour: false, //включен ли режим тура;
-
-  IMG_URL: 'http://192.168.201.118:8080/api',
+  tour: false, //включен ли режим тура; 
   BACKEND_URL: './api',//'http://localhost:8383/rest-api',
   CERT_LIST: [],
   SELECTED_CERT_OBJ: null,

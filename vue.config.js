@@ -1,6 +1,7 @@
 module.exports = {
   lintOnSave: process.env.NODE_ENV !== "production",
   // proxy API requests to Valet during development
+  
   devServer: {
     //proxy: 'http://localhost:8000'//с пушером траблы вызывает;
     proxy: {
@@ -12,6 +13,7 @@ module.exports = {
       }
     }
   },
+
   publicPath: process.env.NODE_ENV === 'production' ?
     'And2/js/vue-cryptoPro-pdf-sign/dist/' : '',
   assetsDir: "./", //По умолчанию: '' - Каталог (относительно outputDir) для хранения сгенерированных статических ресурсов (js, css, img, fonts).

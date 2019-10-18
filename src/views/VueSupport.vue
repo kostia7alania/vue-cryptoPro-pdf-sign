@@ -11,9 +11,9 @@
 
       <div slot="header">
         <div v-if="helpStatus == 'main'"></div>
-        <my-button :img_url="img_url" v-if="helpStatus == 'feedback'" class="back" @click="changeState('main')" text="<" />
+        <my-button v-if="helpStatus == 'feedback'" class="back" @click="changeState('main')" text="<" />
         <div><strong>Помощь</strong></div>
-        <my-button :img_url="img_url" class="close" @click="closeModal" text="x"/>
+        <my-button class="close" @click="closeModal" text="x"/>
       </div>
 
 
@@ -39,7 +39,7 @@
 
 
         </div>
-        <FeedBack :img_url="img_url" :helpStatus="helpStatus" v-if="helpStatus == 'feedback'"/>
+        <FeedBack :helpStatus="helpStatus" v-if="helpStatus == 'feedback'"/>
 
 
       </div>
@@ -79,12 +79,7 @@ export default {
     if (typeof document !== "undefined") {
       document.body.removeEventListener("keydown", this.handleTabKey);
     }
-  },
-  computed: {
-    img_url() {
-      return this.$store.state.IMG_URL;
-    }
-  },
+  }, 
   methods: {
     saveStateChange(val) {},
     goTour() {
