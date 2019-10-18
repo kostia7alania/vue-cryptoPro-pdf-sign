@@ -67,9 +67,13 @@ $pdf_base64 = getSigningDoc_Base64($_GET['id']);
 base64save(base64_decode($pdf_base64), $test_doc_pdf);
 
 $document = base64_encode ( file_get_contents($test_doc_pdf, 1) ); // <-- SIGN;
+
 if($_GET['stage']==1) stage1($url, $rawCertificate, $template, $classmap, $document);//<-- die
+
 elseif($_GET['stage']==2) {
+
     $binary = stage2($url, $rawCertificate, $template, $classmap, $document); //<--die
+    
     $signed_pdf_base64 = base64_encode($binary);
     saveSigningDoc_Base64($signed_pdf_base64, $_GET['id']); //v СОХРАНЕНИЕ В YII БД
 

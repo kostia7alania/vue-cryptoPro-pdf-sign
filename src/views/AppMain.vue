@@ -18,8 +18,15 @@
               @click="clear_doc_prev"
             />
           </div>
-          <choose-position v-if="doc_prev && !base64Binary"/>
-          <Preview-signed-image v-if="base64Binary"/>
+
+          <choose-position
+            v-if="doc_prev && !base64Binary"
+          />
+
+          <Preview-signed-image
+            v-if="base64Binary"
+          />
+
         </div>
     </section>
 
@@ -32,12 +39,13 @@ import "../libs/jquery-1.4.2.min.js";
 import "../libs/jquery-ui-1.8.6.custom.min.js";
 import "../libs/jquery-watermarker-0.3.js"; //пародию начали пилить на ету тему -> https://codepen.io/anon/pen/YMRLdp
 
+ import choosePosition from "./Choose-position"
 export default {
   components: {
     "my-button-anim-left": () => import("../components/my-button-anim-left"),
     "app-get-cert-list": () => import("./AppGetCertList"),
     "vue-support": () => import("./VueSupport"),
-    "choose-position": () => import("./Choose-position"),
+    choosePosition,
     "Preview-signed-image": () => import("./Preview-signed-image"),
     Spinner: () => import("./Spinner"),
     Steps: () => import("./Steps")
@@ -210,7 +218,7 @@ img.watermark {
   display: flex;
   flex-direction: column;
   .main-content {
-    flex: 9 1 100%;
+    /*flex: 9 1 100%;*/
     display: flex;
     flex-direction: column;
     align-items: center;
@@ -232,6 +240,7 @@ input {
   @include border-radius(10px);
 }
 </style>
+
 <style>
 #content-header {
   display: flex;

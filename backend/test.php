@@ -16,22 +16,7 @@ if($return_val) {
   //echo mb_convert_encoding($t, 'ISO-8859-15', 'UTF-8');
   //echo 'error exec. CMD='.$cmd;
 } else echo 'SUC';
-
-die;
-
-
-
-echo geoip_country_name_by_name('fkn.ktu10.com');
-die;
-$e = 'C:\\inetpub\\wwwroot\\Shipregs2_tst3_k\\js\\vue-cryptoPro-pdf-sign\\backend\\processing\\';
-$path = $e . 'example.pdf[0]';
-$output_format = "jpeg";
-$output_file = $e  . "123_preview.jpg";
-$c = "convert $path $output_file 2>&1";
-$out = shell_exec($c);
-echo $out;
-die;
-
+ 
 /*
   $antialiasing = "4";
   $preview_page = "1";

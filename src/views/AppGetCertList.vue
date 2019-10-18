@@ -22,7 +22,7 @@
       <mySelect data-step='2' v-intro="step2" v-intro-step="2" v-model="sertSelectHandler" :options="CERT_LIST" />
     </div>
 
-    <div v-if="selected_sert">
+    <template v-if="selected_sert">
 
       <div data-step='3' v-intro="step3" v-intro-step="3" class="cert-list-rows">
         <h2>Информация о сертификате</h2>
@@ -48,7 +48,9 @@
           <div style="color:red" v-if="sert_date_check">Сертификат просрочен</div>
       </div>
       <button data-step='4' v-intro="step4" v-intro-step="4" class="btn-3d-1" :class="{disabled: !IsValid_cert_comp}" @click="upsend_handler">Выбрать положение</button>
-    </div>
+    </template>
+
+
   </div>
 </template>
 
@@ -147,9 +149,12 @@ export default {
 <style scoped lang="scss">
 .cert_list {
   text-align: center;
-  flex: 10;
   display: flex;
   flex-direction: column;
+  height: 75vh;
+  button.btn-3d-1 {
+    margin: auto;
+  }
   .cert-list-rows {
     background-image: url(../img/cert.png); /*<=ПЕРЕНЕС В MOUNTED (в продакшене чеб мог менять урл картинок!) UPD 24.4.2019> ВЕРНУЛ НАХ обратнО.!.*/
     border: 5px double #5a9251;

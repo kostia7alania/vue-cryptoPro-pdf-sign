@@ -1,5 +1,5 @@
 <template>
-  <nav class="container">
+  <nav class="steps">
     <ul class="progressbar">
       <li
         class="menu__item"
@@ -40,8 +40,18 @@ export default {
     }
   }
 };
+
 </script>
+
+
 <style lang="scss" scope>
+
+nav.steps {
+    /* margin: auto !important; */
+    /* width: 420px; */
+    /*transform: translateX(100px);*/
+}
+
 .menu__item-disabled {
   cursor: not-allowed !important;
 }
@@ -57,7 +67,7 @@ li.menu__item {
 }
 .progressbar li {
   list-style-type: none;
-  width: 25%;
+  width: 33%;
   float: left;
   font-size: 12px;
   position: relative;

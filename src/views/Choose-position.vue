@@ -66,8 +66,7 @@ export default {
           that.$store.commit("SET_PECHAT_POS", pechat_pos);
         }
       };
-      const PECHAT_POS = this.$store.state.PECHAT_POS;
-
+      const PECHAT_POS = this.$store.state.PECHAT_POS; 
       $("#watermarked").Watermarker({ ...options, ...PECHAT_POS });
       clearInterval(this.interval);
     }
@@ -96,6 +95,9 @@ export default {
 /* .slide-fade-leave-active до версии 2.1.8 */ {
   transform: translateX(10px);
   opacity: 0;
+}
+img#watermarked {
+    border: 1px solid;
 }
 </style>
 

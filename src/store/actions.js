@@ -76,7 +76,7 @@ const actions = { // запросы к серверу:
         cert_base64: state.SELECTED_CERT_BASE64,
         pechat_pos: state.PECHAT_POS,
         selected_sert: state.SELECTED_CERT_INFO
-      })
+      } )
       .then(res => {
         !res.data && location.reload(); // пустой ответ - редирект на логин
         console.log("stage1=>", res);
@@ -88,6 +88,7 @@ const actions = { // запросы к серверу:
         dispatch('CREATE_SIGN', stamp_prev);
       })
       .catch(err => {
+        debugger 
         console.log("GET_PREVIEW catch err=>" + err);
         EventBus.$emit("echo_end_die", { msg: "Сетевая ошибка!", err });
       })

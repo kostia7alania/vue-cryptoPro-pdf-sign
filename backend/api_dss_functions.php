@@ -231,10 +231,12 @@ function stage2($url, $rawCertificate, $template, $classmap, $document){
           //return [ "stat" => 1, "base64Binary" => 'data:application/pdf;base64,'.base64_encode($base64Binary) ];
     } catch (Exception $e) {
       base64save($e->getMessage(),__DIR__. "/processing/error-getMessage.txt");
-        echo echo_end_die(['stat'=>0,'msg'=>'Ошибка Soap Service',
-          //'getLastRequest()'=> $soap_service->__getLastRequest(),
+        echo echo_end_die([
+          'stat'=>0,
+          'msg'=>'Ошибка Soap Service',
+          'getLastRequest()'=> $soap_service->__getLastRequest(),
           //'getMessage()' => $e->getMessage(),
-          'ALL_ERROR'=> $e
+          //'ALL_ERROR'=> $e
         ]);
         die;
         //die; throw_err('Err:__getLastResponse()=>'.$soap_service->__getLastResponse().'   Err:__getLastRequest()=>'.$soap_service->__getLastRequest().'; getMessage()=>'.$e->getMessage().'; ALL_ERROR=>'.$e);

@@ -44,7 +44,6 @@ export default {
     const pdfAsDataUri = this.base64Binary;
     var pdfAsArray = convertDataURIToBinary(pdfAsDataUri);
 
-    debugger;
     window.t = this;
     const that = this;
     //window.w = PDFJS.getDocument(pdfAsArray);
