@@ -148,6 +148,7 @@ export default {
 .appMain {
   display: flex;
   flex-direction: column;
+  width: 100%;
   .main-content {
     /*flex: 9 1 100%;*/
     display: flex;
