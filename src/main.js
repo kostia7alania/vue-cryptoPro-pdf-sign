@@ -24,11 +24,11 @@ Vue.config.devtools = true
 require('./http.js');
 
 window.EventBus = new Vue()
-window.init_Vue = ({ el = '#app', backend_url = './api', img_url = '../' }) => {
+window.init_Vue = ({ el = '#app', backend_url = './api', ...props }) => {
   window.cryptoVue = new Vue({
     el,
     store,
-    render: h => h(App, { props: { backend_url, img_url /*'./backend/api_dss.php'*/  /*action=sign&stage=1&stampGen=1'*/ } })
+    render: h => h(App, { props: {...props, el, backend_url }} )
   })
 
 }

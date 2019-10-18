@@ -16,7 +16,6 @@ export default {
     cls: null,
     text: {default: ()=>"Нажми на меня"},
     status:{default: () => false},
-    img_url: null
   }, // text,value
   name: "my-button",
   data() {

@@ -1,13 +1,14 @@
 <template>
   <div>
-    <p class="comp-header">Оценить работу приложения</p>
-    <h5>Ваша оценка:</h5>
-    <star-rating @rating-selected="ratingSelected" :rating="rating"/>
+    
+    <my-checkbox :checked="showRate" @click="showRate=$event" text="Оценить работу приложения"/>
+ 
+    <star-rating v-show="showRate" @rating-selected="ratingSelected" :rating="rating"/>
     <h5>Ваш комментарий:</h5>
     <textarea v-model="feedback_text"></textarea>
     <my-checkbox :checked="attachUserData" @click="attachUserData=$event" text="Прикрепить данные"/>
     <p>
-      <my-button :img_url="img_url" @click="sendFeedBack" :status="helpStatus" cls="btn-send" text="Отправить"/>
+      <my-button @click="sendFeedBack" :status="helpStatus" cls="btn-send" text="Отправить"/>
     </p>
 
 
@@ -18,14 +19,13 @@
 <script>
 import { mapMutations } from 'vuex'; 
 import StarRating from "vue-star-rating";
-export default {
-  props:['img_url'],
+export default { 
   name: "FeedBack",
   components: { StarRating },
   data() {
     return {
       attachUserData: true,
-      
+      showRate: false,
       rating: null,
       feedback_text: null
     };
@@ -51,6 +51,9 @@ export default {
   .comp-header {
     font-weight: 888;
     font-size: 15px;
+  }
+  label {
+    margin-left: 4px;
   }
 </style> 
 <style lang="scss">
