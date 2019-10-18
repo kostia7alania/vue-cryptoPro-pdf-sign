@@ -23,10 +23,13 @@
             <my-button class="close" @click="goBack" text="x"/>
           </div>
 
-          <div slot="body">
+          <div slot="body" class="status__text">
               <h3>Документ успешно подписан!</h3>
               <button @click="goBack" class="sexy-button button-green"> OK </button>
           </div>
+          <div slot="footer"></div>
+
+
          </app-modal>
 
         </transition>
@@ -41,7 +44,8 @@ export default {
   mounted() {},
   data() {
     return {
-      timmer: 5
+      timmer: 5,
+      showModal: true
     };
   },
   methods: {
@@ -88,5 +92,8 @@ export default {
   button {
     text-align: center;
   }
+}
+.status__text {
+  text-align: center;
 }
 </style>
