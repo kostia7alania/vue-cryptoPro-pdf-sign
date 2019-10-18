@@ -16,7 +16,10 @@ img.watermark {
     transform: scale(1.05);
   }
 }
- 
+
+A {
+  text-decoration: none !important;
+}
 
 .swal-overlay {
   background-color: rgba(64, 95, 88, 0.45); /*rgba(43, 165, 137, 0.45);*/

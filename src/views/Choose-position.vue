@@ -8,7 +8,7 @@
             -->
               <div v-html="doc_prev"></div>
 
-            <div class="text-center pt-20">
+            <div class="confirm-section">
               <p>Подтвердить выставленное положение видимой печати</p>
               <button class="btn-3d-2" @click="podpisat">Подписать</button>
             </div>
@@ -98,6 +98,12 @@ export default {
 }
 img#watermarked {
     border: 1px solid;
+}
+.confirm-section {
+  text-align: center;
+  button {
+    margin: auto;
+  }
 }
 </style>
 
