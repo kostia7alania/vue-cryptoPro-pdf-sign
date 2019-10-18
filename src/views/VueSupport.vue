@@ -179,9 +179,10 @@ export default {
   flex-direction: column;
   align-items: center;
 
+
   width: 300px;
   margin: 0px auto;
-  padding: 20px 20px 0px 20px;
+  padding: 20px 20px 20px 20px;
   background-color: #fff;
   border-radius: 2px;
   box-shadow: 0 2px 8px rgba(0, 0, 0, 0.33);

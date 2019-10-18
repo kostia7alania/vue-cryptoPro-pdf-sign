@@ -1,7 +1,7 @@
 <template>
   <main class="appMain">
     <section id="content-header">
-      <h1 class="my-logo">Сервис электронной подписи ИЦГПК </h1>
+      <h1 class="brand-logo">Сервис электронной подписи ИЦГПК </h1>
       <vue-support/>
     </section>
 
@@ -133,77 +133,7 @@ export default {
 }
 </style>
 
-
-<style lang="scss">
-@import url(../styles/btn.scss);
-@import url(../styles/global.scss);
-
-.swal-overlay {
-  background-color: rgba(64, 95, 88, 0.45); /*rgba(43, 165, 137, 0.45);*/
-}
-.swal-modal {
-  /*background-color: rgba(63,255,106,0.69);*/
-  border: 3px solid white;
-}
-
-.swal-button {
-  padding: 7px 19px;
-  border-radius: 2px;
-  background-color: #4962b3;
-  font-size: 12px;
-  border: 1px solid #3e549a;
-  text-shadow: 0px -1px 0px rgba(0, 0, 0, 0.3);
-}
-.swal-button:hover {
-  background-color: #1e2b55 !important;
-}
-.disabled {
-  border: 1px solid #999999 !important;
-  background-color: #cccccc !important;
-  color: #666666 !important;
-  &:hover,
-  &:active {
-    border: 1px solid #999999 !important;
-    background-color: #cccccc !important;
-    color: #666666 !important;
-  }
-}
-
-.text-center {
-  text-align: center;
-}
-button {
-  cursor: pointer;
-}
-.red {
-  color: red;
-}
-.green {
-  color: green;
-}
-img.watermark {
-  cursor: pointer;
-  transition: 1s;
-  &:hover {
-    transform: scale(1.05);
-  }
-}
-
-/* Анимации появления и исчезновения могут иметь */
-/* различные продолжительности и динамику.       */
-.slide-fade-enter-active {
-  transition: all 0.3s ease;
-}
-.slide-fade-leave-active {
-  transition: all 0.8s cubic-bezier(1, 0.5, 0.8, 1);
-}
-.slide-fade-enter, .slide-fade-leave-to
-/* .slide-fade-leave-active до версии 2.1.8 */ {
-  transform: translateX(10px);
-  opacity: 0;
-}
-</style>
-
+ 
 
 <style lang="scss" scoped>
 .pechat {
@@ -268,7 +198,7 @@ input {
   border-top-left-radius: 4px;
 }
 
-.my-logo {
+.brand-logo {
   position: relative;
   left: 20px;
   margin: 0;
@@ -281,12 +211,9 @@ input {
 }
 
 @media (max-width: 455px) {
-  .my-logo {
+  .brand-logo {
     font-size: 11px;
   }
 }
 
-.pt-20 {
-  padding-top: 20px;
-}
 </style>

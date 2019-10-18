@@ -1,6 +1,6 @@
 
 <template>
-  <div @click="clickHandler" class="button" :class="cls">
+  <div @click="clickHandler" class="my-button" :class="cls">
     <p>{{text}}
       <img v-if="status=='loading'" src="../img/spinner.gif"/>
       <img v-if="status=='feedback'" src="../img/send.png"/>
@@ -42,7 +42,7 @@ export default {
 <style scoped lang="scss">
 img { height: 15px; }
 
-.button {
+.my-button {
   /*background: #3498db;*/
   /*padding: 4px 15px;*/
   /*position: absolute;*/

@@ -1,8 +1,13 @@
 <template>
   <div class="cert_list">
+    
 
-    <b-button v-if="CERT_LIST" variant="light " @click="getCertList"> <img src="../img/update.png" alt="list-icon" class="list-icon">
-    Обновить список</b-button>
+    <button v-if="CERT_LIST" 
+      class="sexy-button"
+      @click="getCertList"> 
+      <img src="../img/update.png" alt="list-icon" class="list-icon">
+     <strong> Обновить список </strong>
+    </button>
 
     <button v-if="!CERT_LIST"
               v-intro="step1_update"
@@ -49,6 +54,37 @@
       </div>
       <button data-step='4' v-intro="step4" v-intro-step="4" class="btn-3d-1" :class="{disabled: !IsValid_cert_comp}" @click="upsend_handler">Выбрать положение</button>
     </template>
+
+
+
+<a class="sexy-button">
+  <i class="fa fa-cloud-download"></i>
+  <strong>Download</strong>
+</a>
+<a class="sexy-button button-yellow">
+  <i class="fa fa-clock-o"></i>
+  Waiting for <strong>confirmation</strong>
+</a>
+<a class="sexy-button button-orange">
+  <i class="fa fa-exclamation-triangle"></i>
+  Watch <strong>out!</strong>
+</a>
+<a class="sexy-button button-red">
+  <i class="fa fa-times"></i>
+  Order <strong>cancelled</strong>
+</a>
+<a class="sexy-button button-purple">
+  <i class="fa fa-rocket"></i>
+  Fly me to the <strong>Moon</strong>
+</a>
+<a class="sexy-button button-blue">
+  <i class="fa fa-globe"></i>
+  Hello <strong>World</strong>
+</a>
+<a class="sexy-button button-green">
+  <i class="fa fa-check"></i>
+  Order <strong>received</strong>
+</a>
 
 
   </div>

@@ -32,5 +32,13 @@ export default {
 </script>
 
 <style lang="scss">
-
+.button.close {
+  padding: 0px;
+  margin: 0px;
+  background: unset;
+  color: unset;
+  border: unset;
+  box-shadow:unset;
+  font-size: unset;
+}
 </style>
