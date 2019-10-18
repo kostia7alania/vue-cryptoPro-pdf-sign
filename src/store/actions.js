@@ -242,16 +242,14 @@ const actions = { // запросы к серверу:
     return axios_instance
       .post(url, data)
       .then(res => {
+        if(res.status == 201) return EventBus.$emit('set_signed') // успещно подписали ! ура!
         if (res.status == 208)
           return EventBus.$emit("echo_end_die", { msg: "Этот документ уже подписан!" });
         if (typeof res.data == 'object' && res.data.msg)
           return EventBus.$emit("echo_end_die", { msg: res.data.msg });
 
         if (res.headers["content-type"].match("text/plain"))
-        
-          return EventBus.$emit('set_signed') 
-
-          // return commit('SET_BASE64_BINARY', res.data)//ВСЕ! больше превьюшки не хотим .!.
+           return commit('SET_BASE64_BINARY', res.data)//ВСЕ! больше превьюшки не хотим .!.
 
 
         if (typeof res.length > 10) console.log("stage2=>", res);

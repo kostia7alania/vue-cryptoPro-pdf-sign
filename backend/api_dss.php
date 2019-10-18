@@ -77,7 +77,8 @@ elseif($_GET['stage']==2) {
     
     $signed_pdf_base64 = base64_encode($binary);
 
-// пока не пишем в БД:    saveSigningDoc_Base64($signed_pdf_base64, $_GET['id']); //v СОХРАНЕНИЕ В YII БД
+// пока не пишем в БД:   ПИШЕМ:
+  saveSigningDoc_Base64($signed_pdf_base64, $_GET['id']); //v СОХРАНЕНИЕ В YII БД
 
     $_SESSION['signed-doc'] = $binary; //$base64Binary = 'data:application/pdf;base64,'.base64_encode($binary); // <= 4 tests -)
      
