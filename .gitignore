@@ -28,7 +28,7 @@ yarn-error.log*
 
 
 
-# /dist
+/dist
 */video-config.php
 */video-config.php
 /backend/video-config.php
