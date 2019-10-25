@@ -39,7 +39,7 @@ const actions = { // запросы к серверу:
      });
   }
   */
-  GET_CERT_LIST({ state, commit }) {
+   GET_CERT_LIST({ state, commit, dispatch}) {
     // получение списка сертификатов
     if (!window.cryptopro) {
       window.cryptopro = new CryptoPro();
@@ -53,7 +53,13 @@ const actions = { // запросы к серверу:
       .listCertificates() //window.CryptoPro.call('getCertsList')
       .then(list => {
         console.log("GET_CERT_LIST", list, this);
-        commit('SET_CERT_LIST', list);
+        const promises = list.map(cert => (dispatch('IS_VALID_CERT', cert)) )
+        Promise.allSettled(promises)
+          .then(e =>{
+            const filteredCertList = e.reduce((a,el)=> el.value.IsValid?[...a, el.value.cert]:a,[])
+            commit('SET_CERT_LIST', filteredCertList);
+          })
+           
       })
       .catch(e => {
         alert(e.message)
@@ -63,6 +69,47 @@ const actions = { // запросы к серверу:
       .finally(() => EventBus.$emit("loading", ""));
   },
 
+  
+
+  IS_VALID_CERT({ state }, cert) {
+    //const sertId = state.SELECTED_CERT_OBJ.value;
+    return cryptopro
+      .certificateInfo(cert.id)
+      .then( ({ IsValid }) => ({ IsValid, cert }) )
+      .catch(e => false)
+  },
+
+
+
+  GET_SELECTED_CERT_INFO({ state, commit }) {
+    const sertId = state.SELECTED_CERT_OBJ.value;
+    return cryptopro
+      .certificateInfo(sertId)
+      .then(cert => {
+        console.log("GET_SELECTED_CERT_INFO=>", cert);
+        commit("SET_SELECTED_CERT_INFO", cert);
+      })
+      .catch(e => {
+        throw ("Ошибка -> SET_SELECTED_CERT_INFO", e);
+      })
+  },
+
+  GET_SELECTED_CERT_BASE64({ state, commit }) {
+    const sertId = state.SELECTED_CERT_OBJ.value;
+    return cryptopro
+      .readCertificate(sertId) //this.selected_sert._cert.Export(0)  //getCertBase64
+      .then(cert64 => {
+        console.log("GET_SELECTED_CERT_BASE64=>", cert64);
+        commit("SET_SELECTED_CERT_BASE64", cert64);
+      })
+      .catch(err => {
+        throw ("Ошибка -> GET_SELECTED_CERT_BASE64", err);
+      })
+  },
+
+
+
+  
   GET_PREVIEW({ state, commit, dispatch, getters }, stamp_stage) {
     const DOC_ID = getters.DOC_ID
     if (!DOC_ID) return swal("id документа не передан. Попробуйте перезайти.");
@@ -101,33 +148,6 @@ const actions = { // запросы к серверу:
   CONFIRM_POSITION({ state, commit }, payload) {
 
   },
-
-  GET_SELECTED_CERT_INFO({ state, commit }) {
-    const sertId = state.SELECTED_CERT_OBJ.value;
-    return cryptopro
-      .certificateInfo(sertId)
-      .then(cert => {
-        console.log("GET_SELECTED_CERT_INFO=>", cert);
-        commit("SET_SELECTED_CERT_INFO", cert);
-      })
-      .catch(e => {
-        throw ("Ошибка -> SET_SELECTED_CERT_INFO", e);
-      })
-  },
-
-  GET_SELECTED_CERT_BASE64({ state, commit }) {
-    const sertId = state.SELECTED_CERT_OBJ.value;
-    return cryptopro
-      .readCertificate(sertId) //this.selected_sert._cert.Export(0)  //getCertBase64
-      .then(cert64 => {
-        console.log("GET_SELECTED_CERT_BASE64=>", cert64);
-        commit("SET_SELECTED_CERT_BASE64", cert64);
-      })
-      .catch(err => {
-        throw ("Ошибка -> GET_SELECTED_CERT_BASE64", err);
-      })
-  },
-
 
   CREATE_SIGN({ state, commit, dispatch }, stamp_prev) { //createSign
     console.warn("[createSign] [HashValue] => " + state.HASH_VALUE);
@@ -226,9 +246,10 @@ const actions = { // запросы к серверу:
     //commit('SET_DOC_PREV', url)return;//STOP ! Пойдем другим путем! Скормим его путем,чтобы сам получил данные!
     return axios_instance
       .post(url, data)
-      .then(res => {
-        commit('SET_DOC_PREV', res.data)
-        return { name: 'GET_FIRST_PAGE', status: 'success', payload: res.data }
+      .then( ({data:payload}) => {
+        if(!payload || payload.length < 33) throw ('wrong answer')
+        commit('SET_DOC_PREV', payload)
+        return { name: 'GET_FIRST_PAGE', status: 'success', payload }
       })
       .catch(err => {
         console.warn('catch GET_FIRST_PAGE', err)
