@@ -10,7 +10,7 @@ $path = __DIR__.'./processing';
 $test_doc_pdf = __DIR__."/processing/example.pdf";
 
 if(isset($_GET['save'])) {
-  saveSigningDoc_Base64(null,$_GET['id']);
+  saveSigningDoc_Base64(null,$_GET['id'],$_GET['idFile']);
   die;
 }
 
@@ -25,6 +25,7 @@ if(isset ($_GET['get-signed-doc'])) {
 if(isset($_GET['actionSignGetBase64'])) { /// для тестов! https://srs.marinet.ru/And2/registrations/rightSailM/api?action=sign&stage=1&stampGen=1&id=66275F8A-FA4C-4FB4-8661-563885CEE8E0&actionSignGetBase64
   $pdf_base64 = getSigningDoc_Base64($_GET['id']);
   base64save(base64_decode($pdf_base64), $test_doc_pdf);
+
   echo $pdf_base64;die;
   die;
 }
@@ -38,14 +39,15 @@ if($_GET['stampGen']==1) { //!!!! ! ПРЕДПРОСМОТР  !!!!!  PREVIEW doc
               stage1($url, $rawCertificate, $template, $classmap, $document__white); //<--die -подписываем БЕЛЫЙ PDF => [HashValue, СacheObjectId]
             }
             elseif ( $_GET['stage'] == 2 ) {
+
               if(isset($_GET['get-first-page'])) { // PDF -> 1st page -> JPG
                 ob_start();ob_end_clean();
-
                 $pdf_base64 = getSigningDoc_Base64($_GET['id']);
                 base64save(base64_decode($pdf_base64), $test_doc_pdf);
                 $jpg_base64 = pdf_to_jpg_first_page($test_doc_pdf);
                 ob_start();ob_end_clean();
                 header('Content-Type: text/plain');
+                if(!$jpg_base64) die(http_response_code (502));
                 echo "<img width=595 height=842 id=watermarked src='data:image/jpeg;base64,$jpg_base64'>";
                 die;
               }
@@ -78,7 +80,7 @@ elseif($_GET['stage']==2) {
     $signed_pdf_base64 = base64_encode($binary);
 
 // пока не пишем в БД:   ПИШЕМ:
-  saveSigningDoc_Base64($signed_pdf_base64, $_GET['id']); //v СОХРАНЕНИЕ В YII БД
+  saveSigningDoc_Base64($signed_pdf_base64, $_GET['id'], $_GET['idFile']); //v СОХРАНЕНИЕ В YII БД
 
     $_SESSION['signed-doc'] = $binary; //$base64Binary = 'data:application/pdf;base64,'.base64_encode($binary); // <= 4 tests -)
      
