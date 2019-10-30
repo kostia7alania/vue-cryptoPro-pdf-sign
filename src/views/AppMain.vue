@@ -64,10 +64,11 @@ export default {
       console.log("[APP MAIN] loading_handler", e);
       this.loading_text = e || "";
     });
+
     EventBus.$on("echo_end_die", ({ success = 0, msg, err }) => {
       EventBus.$emit("loading", "");
       const text =
-        (typeof err == "object" && err.message && err.message) || msg;
+        (typeof err == "object" && err.message) || typeof err === 'string' && err || msg;
       if (!success)
         swal("Ошибка!!", { className: "red-bg", icon: "error", text });
       else swal(msg || Успешно, { className: "green-bg", icon: "info", text });

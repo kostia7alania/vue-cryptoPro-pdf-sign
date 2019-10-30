@@ -5,7 +5,7 @@
     <button v-if="CERT_LIST" 
       class="sexy-button"
       @click="getCertList"> 
-      <img src="../img/update.png" alt="list-icon" class="list-icon">
+      <img src="../img/update.png" class="list-icon">
      <strong> Обновить список </strong>
     </button>
 
@@ -15,10 +15,10 @@
               data-step='1'
               v-intro-scroll-to="'tooltip'"
               v-intro-position="'bottom-left-aligned'"
-              class="btn-3d-1"
+              class="btn-3d-1 btn-blue"
               @click="getCertList"
     >
-      <img src="../img/list-icon.png" alt="list-icon" class="list-icon">
+      <img src="../img/list-icon.png" class="list-icon">
       Получить список сертификатов
     </button>
 
@@ -52,7 +52,7 @@
           -->
           <div style="color:red" v-if="sert_date_check">Сертификат просрочен</div>
       </div>
-      <button data-step='4' v-intro="step4" v-intro-step="4" class="btn-3d-1" :class="{disabled: !IsValid_cert_comp}" @click="upsend_handler">Выбрать положение</button>
+      <button data-step='4' v-intro="step4" v-intro-step="4" class="btn-3d-1 btn-blue" :class="{disabled: !IsValid_cert_comp}" @click="upsend_handler">Выбрать положение</button>
     </template>
  
 
@@ -182,9 +182,23 @@ export default {
 }
 </style>
 
-<style lang="scss">
+<style lang="scss" scoped>
 .list-icon {
   width: 20px;
   vertical-align: middle;
+}
+.btn-blue {
+  background: #2c476c;
+  box-shadow: -6px 6px 0px #2c476c;
+  &:hover {
+    background: rgb(5, 24, 66);
+  }
+  &::before { 
+    border-right: solid 6px #2c476c;
+  }
+  &::after { 
+    border-top: solid 6px #2c476c;
+  }
+   
 }
 </style>

@@ -135,7 +135,6 @@ const actions = { // запросы к серверу:
         dispatch('CREATE_SIGN', stamp_prev);
       })
       .catch(err => {
-        debugger 
         console.log("GET_PREVIEW catch err=>" + err);
         EventBus.$emit("echo_end_die", { msg: "Сетевая ошибка!", err });
       })
@@ -247,11 +246,12 @@ const actions = { // запросы к серверу:
     return axios_instance
       .post(url, data)
       .then( ({data:payload}) => {
-        if(!payload || payload.length < 33) throw ('wrong answer')
+        if(!payload || payload.length < 33) throw 'Ошибка предпросмотра. Данные не пришли.'
         commit('SET_DOC_PREV', payload)
         return { name: 'GET_FIRST_PAGE', status: 'success', payload }
       })
       .catch(err => {
+        EventBus.$emit("echo_end_die", { err, msg: 'Ошибка загрузки превью'})
         console.warn('catch GET_FIRST_PAGE', err)
         return { name: 'GET_FIRST_PAGE', status: 'catch', payload: err }
       })
