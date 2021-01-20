@@ -16,7 +16,7 @@
     "bootstrap-vue": "^2.0.0-rc.11",
     "bowser": "1.5.0",
     "es6-promise": "^4.2.5",
-    "gsap": "^2.0.2",
+    "gsap": "^3.6.0",
     "intro.js": "^2.9.3",
     "node-ensure": "0.0.0",
     "npm": "^6.7.0",
