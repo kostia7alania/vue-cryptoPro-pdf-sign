@@ -11,7 +11,7 @@
     "ui": "vue ui"
   },
   "dependencies": {
-    "ajv": "^6.6.1",
+    "ajv": "^6.12.3",
     "axios": "^0.18.0",
     "bootstrap-vue": "^2.0.0-rc.11",
     "bowser": "1.5.0",
